@@ -66,6 +66,33 @@ class LoginController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $userId = Auth::id();
+        $user = Auth::user();
+
+        // 2. Cek token SEBELUM logout
+        $tokenSebelum = $user->remember_token;
+
+        // 3. Panggil fungsi logout Bawaan
+        Auth::logout();
+
+        // 4. Ambil data user 'fresh' dari database SETELAH logout
+        $userFresh = \App\Models\User::find($userId);
+        $tokenSesudah = $userFresh->remember_token;
+
+        // 5. Hentikan eksekusi dan tunjukkan hasilnya
+        dd(
+            '--- ANALISIS LOGOUT ---',
+            'User:',
+            $userFresh->nama,
+            'Token SEBELUM Logout:',
+            $tokenSebelum,
+            'Token SESUDAH Logout:',
+            $tokenSesudah,
+            'Status Harusnya:',
+            'NULL',
+            'Status Test:',
+            ($tokenSesudah === null) ? 'BERHASIL' : 'GAGAL'
+        );
         Auth::logout();
 
         $request->session()->invalidate();
