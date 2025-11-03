@@ -45,6 +45,6 @@ class CheckRole
         // # artinya user tidak punya role yang cocok.
         // # Kita paksa tampilkan halaman error 403 (Forbidden/Terlarang).
         // # Ini PENTING untuk keamanan.
-        abort(403, 'AKSES DITOLAK. ANDA TIDAK MEMILIKI OTORISASI.');
+        abort(403, 'AKSES DITOLAK.');
     }
 }
