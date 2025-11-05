@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id()->unique(); // ID_Pengguna
             $table->string('nama');
-            $table->timestamp('email_verified_at')->nullable();
+
             $table->string('password'); // Password
-            $table->enum('role', ['admin', 'kasir']); // role ENUM
+            $table->enum('role', ['admin', 'kasir', 'pemilik']); // role ENUM
             $table->rememberToken();
             $table->timestamps(); // created_at & updated_at
         });
