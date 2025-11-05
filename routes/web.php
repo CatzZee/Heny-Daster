@@ -1,42 +1,87 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
-use App\Http\Controllers\Kasir\DashboardController as KasirDashboard;
-use App\Http\Controllers\Pemilik\DashboardController as PemilikDashboard;
 
-// === RUTE TAMU (Tidak Perlu Login) ===
-// Tidak ada middleware 'auth' di sini
-Route::get('/login', [LoginController::class, 'create'])->name('login');
-Route::post('/login', [LoginController::class, 'store']);
-Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+Route::get('/kasir', function () {
+    return view('../kasir/login');
+});
+Route::get('../kasir/loading', function () {
+    return view('../kasir/loading');
+});
+Route::get('/wait/dasboard', function () {
+    return view('../kasir/dasboard');
+});
+Route::get('/wait/dasboard/riwayat', function () {
+    return view('../kasir/riwayat');
+});
+Route::get('/wait/dasboard/struk print', function () {
+    return view('../kasir/strukR');
+});
+Route::get('/wait/dasboard/struk', function () {
+    return view('../kasir/struk');
+});
 
 
-// === RUTE PENGHUNI (WAJIB LOGIN) ===
-// # ALUR A: "Satpam Gerbang Utama"
-// Semua rute di dalam grup ini akan dicek oleh middleware 'auth'
-Route::middleware(['auth'])->group(function () {
+Route::get('/admin', function () {
+    return view('../admin/login');
+});
+Route::get('/admin/loading', function () {
+    return view('../admin/loading');
+});
+Route::get('/admin/dasboard/riwayat', function () {
+    return view('../admin/riwayat');
+});
+Route::get('/admin/dasboard/akun', function () {
+    return view('../admin/data');
+});
+Route::get('/admin/dasboard/akun/detail', function () {
+    return view('../admin/ddetail');
+});
+Route::get('/admin/dasboard/akun/data baru', function () {
+    return view('../admin/isiform');
+});
+Route::get('/admin/dasboard/stok barang', function () {
+    return view('../admin/stok');
+});
 
-    // # ALUR B: "Penjaga Pintu Unit Admin"
-    // Hanya user dengan role 'admin' yang boleh masuk
-    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
-        // ...rute admin lainnya...
-    });
 
-    // # ALUR C: "Penjaga Pintu Unit Kasir"
-    // Hanya user dengan role 'kasir' yang boleh masuk
-    Route::middleware(['role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {
-        Route::get('/dashboard', [KasirDashboard::class, 'index'])->name('dashboard');
-        // ...rute kasir lainnya...
-    });
 
-    // # ALUR D: "Penjaga Pintu Unit Pemilik"
-    // Hanya user dengan role 'pemilik' yang boleh masuk
-    Route::middleware(['role:pemilik'])->prefix('pemilik')->name('pemilik.')->group(function () {
-        Route::get('/dashboard', [PemilikDashboard::class, 'index'])->name('dashboard');
-        // ...rute pemilik lainnya...
-    });
+Route::get('/pemilik', function () {
+    return view('../pemilik/login');
+});
+Route::get('/pemilik/loading', function () {
+    return view('../pemilik/loading');
+});
+Route::get('/pemilik/dasboard', function () {
+    return view('../pemilik/dasboard');
+});
+Route::get('/pemilik/dasboard/struk print', function () {
+    return view('../pemilik/struk');
+});
+Route::get('/pemilik/stok barang', function () {
+    return view('../pemilik/stok');
+});
+Route::get('/pemilik/riwayat', function () {
+    return view('../pemilik/riwayat');
+});
+Route::get('/pemilik/dasboard/struk riwayat', function () {
+    return view('../pemilik/strukR');
+});
+Route::get('/pemilik/dasboard/laporan', function () {
+    return view('../pemilik/laporan');
+});
+Route::get('/pemilik/laporan grafik', function () {
+    return view('../pemilik/grafik');
+});
+Route::get('/pemilik/dasboard/akun', function () {
+    return view('../pemilik/data');
+});
+Route::get('/pemilik/dasboard/akun detail', function () {
+    return view('../pemilik/ddetail');
+});
+Route::get('/pemilik/dasboard/akun/data baru', function () {
+    return view('../pemilik/isiform');
+});
 
-}); // <-- Akhir dari grup 'auth'
+
+
