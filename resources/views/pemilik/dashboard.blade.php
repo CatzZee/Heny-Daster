@@ -290,7 +290,7 @@
                 <a class="nav-link active" href="#">Katalog</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Stok Barang</a>
+                <a class="nav-link" href="{{ route( $role . '.produk.index') }}">Stok Barang</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Riwayat Transaksi</a>
