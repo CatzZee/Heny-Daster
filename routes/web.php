@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Kasir\DashboardController as KasirDashboard;
 use App\Http\Controllers\Pemilik\DashboardController as PemilikDashboard;
+use App\Http\Controllers\ProdukController as ProdukController;
 
 // === RUTE TAMU (Tidak Perlu Login) ===
 // Tidak ada middleware 'auth' di sini
@@ -22,7 +23,7 @@ Route::middleware(['auth'])->group(function () {
     // Hanya user dengan role 'admin' yang boleh masuk
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
-        // ...rute admin lainnya...
+        Route::resource('produk', ProdukController::class);
     });
 
     // # ALUR C: "Penjaga Pintu Unit Kasir"
@@ -36,7 +37,7 @@ Route::middleware(['auth'])->group(function () {
     // Hanya user dengan role 'pemilik' yang boleh masuk
     Route::middleware(['role:pemilik'])->prefix('pemilik')->name('pemilik.')->group(function () {
         Route::get('/dashboard', [PemilikDashboard::class, 'index'])->name('dashboard');
-        // ...rute pemilik lainnya...
+        Route::resource('produk', ProdukController::class);
     });
 
 }); // <-- Akhir dari grup 'auth'
