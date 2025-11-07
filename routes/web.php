@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Kasir\DashboardController as KasirDashboard;
+use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\Pemilik\DashboardController as PemilikDashboard;
 use App\Http\Controllers\ProdukController as ProdukController;
 
@@ -38,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:pemilik'])->prefix('pemilik')->name('pemilik.')->group(function () {
         Route::get('/dashboard', [PemilikDashboard::class, 'index'])->name('dashboard');
         Route::resource('produk', ProdukController::class);
+        Route::post('/dashboard', [KatalogController::class, 'store'])->name('transaksi.store');
     });
 
 }); // <-- Akhir dari grup 'auth'

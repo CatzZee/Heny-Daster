@@ -5,6 +5,7 @@ namespace App\Http\Controllers\pemilik;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Produk;
 
 class DashboardController extends Controller
 {
@@ -13,8 +14,14 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $role = Auth::user()->role;
-        return view('pemilik.dashboard', compact('role'));
+        // Ambil semua produk (atau produk yang 'ready' saja)
+        $produks = Produk::where('stok_produk', '>', 0)->get();
+
+        // Ambil data lain yang mungkin Anda perlukan
+        $role = Auth::user()->role; // Anda sudah punya ini
+
+        // Kirim data ke view
+        return view('pemilik.dashboard', compact('produks', 'role'));
     }
 
     /**

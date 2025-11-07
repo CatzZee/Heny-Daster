@@ -290,7 +290,7 @@
                 <a class="nav-link active" href="#">Katalog</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ route( $role . '.produk.index') }}">Stok Barang</a>
+                <a class="nav-link" href="{{ route($role . '.produk.index') }}">Stok Barang</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Riwayat Transaksi</a>
@@ -320,120 +320,54 @@
         <div class="kategori-container mb-4">
             <div class="kategori-item active">Semua</div>
             <div class="kategori-item">Favorit</div>
-            <div class="kategori-item">Daster Pendek</div>
+            <div class="kategori-item">Daster</div>
             <div class="kategori-item">Daster Panjang</div>
             <div class="kategori-item">Babydoll</div>
         </div>
 
         <!-- Kotak-kotak menu baju -->
         <div class="menu-baju mt-4">
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Pendek">
-                <div class="harga">90K</div>
-                <p class="nama-baju">Daster Pendek</p>
-            </div>
 
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Panjang">
-                <div class="harga">100K</div>
-                <p class="nama-baju">Daster Panjang</p>
-            </div>
+            {{-- HAPUS SEMUA 17 <div class="card-baju">...</div> STATIS ANDA --}}
+            {{-- DAN GANTI DENGAN LOOP DI BAWAH INI: --}}
 
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Babydoll">
-                <div class="harga">85K</div>
-                <p class="nama-baju">Babydoll</p>
-            </div>
+            @forelse ($produks as $produk)
+                <div class="card-baju">
+                    {{-- 
+                      Kita gunakan Storage::url() seperti di file "Stok Produk" Anda.
+                      Jika path_gambar kosong/null, kita pakai placeholder.
+                    --}}
+                    <img src="{{ $produk->path_gambar ? Storage::url($produk->path_gambar) : 'https://via.placeholder.com/200' }}"
+                        alt="{{ $produk->nama_produk }}">
 
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Santai">
-                <div class="harga">95K</div>
-                <p class="nama-baju">Kemeja Santai</p>
-            </div>
+                    {{-- 
+                      Kita format harga (misal: 90000) menjadi "90K"
+                      agar sesuai dengan desain UI Anda.
+                    --}}
+                    <div class="harga">{{ round($produk->harga_produk / 1000) }}K</div>
 
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Motif">
-                <div class="harga">92K</div>
-                <p class="nama-baju">Daster Motif</p>
-            </div>
+                    {{-- Tampilkan nama produk --}}
+                    <p class="nama-baju">{{ $produk->nama_produk }}</p>
+                </div>
 
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Bali">
-                <div class="harga">88K</div>
-                <p class="nama-baju">Daster Bali</p>
-            </div>
+            @empty
+                {{-- 
+                  Ini akan tampil jika $produks kosong (tidak ada data).
+                  'grid-column: 1 / -1' membuatnya terentang penuh.
+                --}}
+                <div style="grid-column: 1 / -1; text-align: center; color: #ff3b91; padding: 50px;">
+                    <h3>Oops!</h3>
+                    <p>Belum ada produk yang tersedia di katalog saat ini.</p>
+                </div>
+            @endforelse
 
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Babydoll Premium">
-                <div class="harga">110K</div>
-                <p class="nama-baju">Babydoll Premium</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Jumbo">
-                <div class="harga">105K</div>
-                <p class="nama-baju">Daster Jumbo</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Polos">
-                <div class="harga">80K</div>
-                <p class="nama-baju">Daster Polos</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
         </div>
+    </div>
     </div>
 
     <!-- Sidebar Kanan (Keranjang) -->
-    <div class="offcanvas offcanvas-end show" id="offcanvasNavbar" tabindex="-1"
-        aria-labelledby="offcanvasNavbarLabel" style="visibility: visible; position: fixed; width: 250px;">
+    <div class="offcanvas offcanvas-end show" id="offcanvasNavbar" tabindex="-1" aria-labelledby="offcanvasNavbarLabel"
+        style="visibility: visible; position: fixed; width: 250px;">
         <div class="offcanvas-header">
             <h4 style="color: #ffb3d9; font-weight: bold;">Keranjang</h4>
         </div>
@@ -446,8 +380,7 @@
                             style="color:#ff3b91; border-radius:20px;">
                     </div>
                     <div class="col-6">
-                        <input class="form-control" list="datalistOptions" placeholder=""
-                            style=" border-radius:20px;">
+                        <input class="form-control" list="datalistOptions" placeholder="" style=" border-radius:20px;">
                         <datalist id="datalistOptions"></datalist>
                     </div>
                 </div>
