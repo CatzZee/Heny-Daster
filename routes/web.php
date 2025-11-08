@@ -39,7 +39,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:pemilik'])->prefix('pemilik')->name('pemilik.')->group(function () {
         Route::get('/dashboard', [PemilikDashboard::class, 'index'])->name('dashboard');
         Route::resource('produk', ProdukController::class);
-        Route::post('/dashboard', [KatalogController::class, 'store'])->name('transaksi.store');
+        Route::post('/transaksi', [KatalogController::class, 'store'])->name('transaksi.store');
     });
 
 }); // <-- Akhir dari grup 'auth'

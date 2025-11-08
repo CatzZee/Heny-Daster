@@ -22,8 +22,9 @@ class Transaksi extends Model
      */
     protected $fillable = [
         'id_pengguna',
+        'nama_pembeli', // <-- (BARU)
         'kode_transaksi',
-        'waktu_transaksi', // Kita akan atur ini di controller
+        'waktu_transaksi',
         'total_harga',
         'jumlah_bayar',
         'kembalian',

@@ -6,35 +6,32 @@ use App\Models\Produk;
 use App\Models\KategoriProduk;
 use App\Models\Transaksi;
 use App\Models\DetailTransaksi;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB; // <-- 1. WAJIB: Untuk Transaksi Database
-use Illuminate\Support\Str; // <-- 2. WAJIB: Untuk generate Kode Transaksi
+use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Str;
+use App\Http\Requests\StoreTransaksiRequest; // (BARU) Import Request kustom kita
 
 class KatalogController extends Controller
 {
     /**
-     * Helper untuk mendapatkan prefix role ('admin', 'pemilik', 'kasir', dll.)
+     * Helper untuk mendapatkan prefix role ('pemilik' atau 'kasir')
      */
     private function getRolePrefix(): string
     {
         $role = Auth::user()->role;
-        // Asumsi 'kasir' juga boleh akses, tambahkan sesuai kebutuhan
-        if (in_array($role, [ 'pemilik', 'kasir'])) {
+        if (in_array($role, ['pemilik', 'kasir'])) {
             return $role;
         }
         abort(403, 'Akses ditolak.');
     }
 
     /**
-     * Menampilkan halaman Katalog (View Anda)
+     * Menampilkan halaman Katalog (View Dashboard)
      */
     public function index()
     {
         $routePrefix = $this->getRolePrefix();
-
-        // Asumsi nama view Anda adalah 'katalog.blade.php'
-        $viewPath = $routePrefix . '.dashboard';
+        $viewPath = $routePrefix . '.dashboard'; // Misal: 'kasir.dashboard'
 
         $produks = Produk::with('kategori')->latest()->get();
         $kategoris = KategoriProduk::all();
@@ -44,31 +41,20 @@ class KatalogController extends Controller
 
     /**
      * Menyimpan Transaksi baru
+     * (MODIFIKASI) Menggunakan StoreTransaksiRequest dan mengembalikan JSON
      */
-    public function store(Request $request)
+    public function store(StoreTransaksiRequest $request) // <-- (MODIFIKASI)
     {
-        // 1. Validasi Input Dasar
-        $request->validate([
-            'metode_pembayaran' => 'required|string|in:Tunai,Qris,Transfer',
-            'total_harga' => 'required|numeric|min:0',
-            'jumlah_bayar' => 'required|numeric|min:' . $request->total_harga, // Jumlah bayar tidak boleh kurang dari total
-            'items' => 'required|array|min:1', // Harus ada setidaknya 1 item
-            'items.*.produk_id' => 'required|integer|exists:produks,id',
-            'items.*.jumlah' => 'required|integer|min:1',
-            'items.*.harga' => 'required|numeric',
-        ]);
+        // (DIHAPUS) Blok $request->validate() sudah tidak ada,
+        // karena otomatis ditangani oleh StoreTransaksiRequest.
 
-        $routePrefix = $this->getRolePrefix();
-
-        // 2. Gunakan DB::transaction
-        // Ini memastikan jika ada 1 error (misal: stok gagal),
-        // semua data (transaksi & detail) akan di-ROLLBACK (dibatalkan).
         try {
             DB::beginTransaction();
 
             // 3. Buat Transaksi (Data Induk)
             $transaksi = Transaksi::create([
-                'id_pengguna' => Auth::id(), // ID Kasir/Admin yang login
+                'id_pengguna' => Auth::id(),
+                'nama_pembeli' => $request->nama_pembeli, // <-- (BARU) Sesuai alur
                 'kode_transaksi' => 'TRX-' . strtoupper(Str::random(10)),
                 'waktu_transaksi' => now(),
                 'total_harga' => $request->total_harga,
@@ -80,11 +66,11 @@ class KatalogController extends Controller
             // 4. Loop dan Simpan Detail Transaksi + Kurangi Stok
             foreach ($request->items as $itemData) {
                 // Ambil produk dari database
-                $produk = Produk::find($itemData['produk_id']);
+                // (MODIFIKASI) Gunakan 'lockForUpdate' untuk mencegah race condition stok
+                $produk = Produk::lockForUpdate()->find($itemData['produk_id']);
 
                 // Cek ketersediaan stok
                 if ($produk->stok_produk < $itemData['jumlah']) {
-                    // Jika stok tidak cukup, batalkan transaksi
                     throw new \Exception('Stok untuk ' . $produk->nama_produk . ' tidak mencukupi.');
                 }
 
@@ -93,27 +79,29 @@ class KatalogController extends Controller
                     'id_transaksi' => $transaksi->id,
                     'id_produk' => $itemData['produk_id'],
                     'jumlah' => $itemData['jumlah'],
-                    'harga_saat_transaksi' => $itemData['harga'], // Harga saat beli
+                    'harga_saat_transaksi' => $itemData['harga'], 
                 ]);
 
                 // Kurangi stok produk
-                // 'decrement' adalah operasi database yang aman
                 $produk->decrement('stok_produk', $itemData['jumlah']);
             }
 
             // 5. Jika semua berhasil, commit transaksi
             DB::commit();
 
-            return redirect()->route($routePrefix . '.katalog.index')
-                ->with('success', 'Transaksi berhasil disimpan! Kode: ' . $transaksi->kode_transaksi);
+            // (MODIFIKASI) Kirim respons JSON sukses
+            return response()->json([
+                'success' => 'Transaksi berhasil disimpan! Kode: ' . $transaksi->kode_transaksi
+            ], 200); // 200 = OK
+
         } catch (\Exception $e) {
             // 6. Jika ada error, rollback semua
             DB::rollBack();
 
-            // Kirim pesan error kembali ke view
-            return redirect()->back()
-                ->withInput() // Kembalikan input lama (keranjang, dll.)
-                ->with('error', 'Transaksi Gagal: ' . $e->getMessage());
+            // (MODIFIKASI) Kirim respons JSON error
+            return response()->json([
+                'error' => 'Transaksi Gagal: ' . $e->getMessage()
+            ], 500); // 500 = Internal Server Error
         }
     }
 }
