@@ -291,6 +291,7 @@
 </head>
 
 <body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Sidebar Kiri -->
     <div class="sidebar">
         <nav class="navbar mb-3">
@@ -338,22 +339,36 @@
         </div>
 
         <div class="search-box">
-            <input type="text" class="search-input" placeholder="🔍 Cari barang..." id="searchInput"
+            <input type="text" class="search-input" placeholder="Cari barang..." id="searchInput"
                 onkeyup="searchTable()">
         </div>
 
         {{-- [PERUBAHAN 4: Tampilkan Pesan Sukses/Error] --}}
+
         @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         @endif
+
+        {{-- (BARU) TAMBAHKAN BLOK INI UNTUK MENANGKAP ERROR DARI CONTROLLER --}}
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         @if ($errors->any())
-            <div class="alert alert-danger">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>Oops! Ada yang salah:</strong>
                 <ul>
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
