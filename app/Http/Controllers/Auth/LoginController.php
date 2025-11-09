@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\LoginRequest; // 1. Import Request yang baru dibuat
+use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
@@ -15,7 +15,27 @@ class LoginController extends Controller
      */
     public function create()
     {
-        return view('auth.login'); // Asumsi view Anda ada di resources/views/auth/login.blade.php
+        // [MODIFIKASI] Cek apakah user sudah login
+        if (Auth::check()) {
+            // Jika sudah, ambil data user
+            $user = Auth::user();
+
+            // [MODIFIKASI] Langsung redirect berdasarkan role
+            // Logika ini disalin dari method store() Anda
+            switch ($user->role) {
+                case 'admin':
+                    return redirect()->intended('/admin/dashboard');
+                case 'kasir':
+                    return redirect()->intended('/kasir/dashboard');
+                case 'pemilik':
+                    return redirect()->intended('/pemilik/dashboard');
+                default:
+                    return redirect()->intended('/dashboard');
+            }
+        }
+
+        // Jika user BELUM login, baru tampilkan halaman login
+        return view('auth.login');
     }
 
     /**
@@ -26,21 +46,19 @@ class LoginController extends Controller
         // 1. Ambil data yang sudah divalidasi
         $credentials = $request->validated();
 
-        // 2. [BARU] Cek nilai checkbox 'remember'
-        //    $request->boolean('remember') akan bernilai 'true' jika dicentang
-        //    dan 'false' jika tidak (ini cara aman mengambil nilai checkbox)
+        // 2. Cek nilai checkbox 'remember'
         $remember = $request->boolean('remember');
 
-        // 3. [MODIFIKASI] Tambahkan $remember sebagai parameter kedua
+        // 3. Coba lakukan login
         if (Auth::attempt(
             ['nama' => $credentials['nama'], 'password' => $credentials['password']],
-            $remember // <-- Ini dia kuncinya
+            $remember
         )) {
 
             // 4. Regenerasi session
             $request->session()->regenerate();
 
-            // 5. Cek role user dan arahkan (logika ini tetap sama)
+            // 5. Cek role user dan arahkan
             $user = Auth::user();
 
             switch ($user->role) {
@@ -55,7 +73,7 @@ class LoginController extends Controller
             }
         }
 
-        // 6. Jika login gagal (logika ini tetap sama)
+        // 6. Jika login gagal
         return back()->withErrors([
             'nama' => 'Nama atau password yang Anda masukkan salah.',
         ])->onlyInput('nama');

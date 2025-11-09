@@ -162,7 +162,8 @@
                         <div class="form">
                             <form method="POST" action="{{ route('login') }}">
                                 @csrf
-                                <input type="text" id="nama" class="form-control @error('nama') is-invalid @enderror"
+                                <input type="text" id="nama"
+                                    class="form-control @error('nama') is-invalid @enderror"
                                     placeholder="Masukkan Username" name="nama" value="{{ old('nama') }}" required
                                     autofocus>
                                 @error('nama')
@@ -178,7 +179,12 @@
                                         {{ $message }}
                                     </div>
                                 @enderror
-                                <div class="button mt-3">
+
+                                <div class="mt-1 form-check">
+                                    <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                                    <label class="form-check-label" for="remember">Ingat Saya</label>
+                                </div>
+                                <div class="button mt-1">
                                     <button type="submit" class="btn">Masuk</button>
                                 </div>
                             </form>
