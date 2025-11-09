@@ -365,11 +365,6 @@
                             value="Qris" autocomplete="off">
                         <label class="btn btn-outline-danger" for="metodeQris"
                             style="border-color: #ffc0cb; color: #ff3b91;">Qris</label>
-
-                        <input type="radio" class="btn-check" name="metode_pembayaran" id="metodeTransfer"
-                            value="Transfer" autocomplete="off">
-                        <label class="btn btn-outline-danger" for="metodeTransfer"
-                            style="border-color: #ffc0cb; color: #ff3b91;">Transfer</label>
                     </div>
 
                     <button id="btnProses"
@@ -552,9 +547,20 @@
                     const result = await response.json();
 
                     if (response.ok) {
-                        alert(result.success);
-                        resetTransaksi();
+
+                        // 1. Ambil kode transaksi dari response JSON
+                        const kodeTransaksi = result.kode_transaksi;
+
+                        // 2. Buat URL ke route cetak struk
+                        const strukUrl = `/cetak-struk/${kodeTransaksi}`;
+
+                        // 4. (MODIFIKASI) Redirect halaman ke URL struk
+                        window.location.href = strukUrl;
+
+                        // Kita tidak perlu memanggil resetTransaksi() lagi
+                        // karena halaman ini akan ditinggalkan.
                     } else {
+
                         if (response.status === 422) {
                             let errorMsg = 'Validasi Gagal:\n';
                             for (const key in result.errors) {

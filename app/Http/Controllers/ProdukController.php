@@ -19,7 +19,7 @@ class ProdukController extends Controller
     {
         // Kita bisa panggil Auth::user() karena rute ini sudah dilindungi
         // oleh middleware 'auth'.
-        $role = Auth::user()->role; 
+        $role = Auth::user()->role;
 
         if ($role === 'admin' || $role === 'pemilik') {
             return $role;
@@ -39,10 +39,10 @@ class ProdukController extends Controller
     {
         // 1. Ambil prefix (cth: 'admin')
         $routePrefix = $this->getRolePrefix();
-        
+
         // 2. Tentukan path view (cth: 'admin.produk.index')
         $viewPath = $routePrefix . '.manajemenProduk';
-        
+
         // 3. Ambil data dari database
         // 'with('kategori')' -> Eager Loading, sangat penting untuk performa
         // agar tidak terjadi N+1 query problem di view.
@@ -50,9 +50,9 @@ class ProdukController extends Controller
 
         // 4. [PERBAIKAN] Ambil data kategori untuk modal dropdown
         $kategoris = KategoriProduk::all();
-        
+
         // 4. Kirim data ke view yang benar
-        return view($viewPath, compact('produks','kategoris' ,'routePrefix'));
+        return view($viewPath, compact('produks', 'kategoris', 'routePrefix'));
     }
 
     /**
@@ -64,13 +64,13 @@ class ProdukController extends Controller
     {
         // 1. Ambil prefix
         $routePrefix = $this->getRolePrefix();
-        
+
         // 2. Tentukan path view
         $viewPath = $routePrefix . '.produk.create';
-        
+
         // 3. Ambil data kategori (untuk dropdown <select>)
         $kategoris = KategoriProduk::all();
-        
+
         // 4. Kirim data ke view
         return view($viewPath, compact('kategoris', 'routePrefix'));
     }
@@ -84,7 +84,7 @@ class ProdukController extends Controller
     {
         // 1. Validasi terjadi OTOMATIS berkat StoreProdukRequest.
         //    Jika gagal, Laravel otomatis redirect kembali ke form.
-        
+
         // 2. Ambil semua data yang sudah lolos validasi
         $validatedData = $request->validated();
 
@@ -93,7 +93,7 @@ class ProdukController extends Controller
             // 'produks' -> nama folder di dalam 'storage/app/public'
             // 'public' -> nama disk (merujuk ke 'config/filesystems.php')
             $path = $request->file('path_gambar')->store('produks', 'public');
-            
+
             // Simpan path (cth: "produks/namagambar.jpg") ke database
             $validatedData['path_gambar'] = $path;
         }
@@ -105,7 +105,7 @@ class ProdukController extends Controller
         // 5. Redirect kembali ke halaman index DENGAN dinamis
         $routePrefix = $this->getRolePrefix();
         return redirect()->route($routePrefix . '.produk.index')
-                         ->with('success', 'Produk berhasil ditambahkan.');
+            ->with('success', 'Produk berhasil ditambahkan.');
     }
 
     /**
@@ -131,16 +131,16 @@ class ProdukController extends Controller
     public function edit(Produk $produk)
     {
         // $produk sudah ada berkat Route Model Binding
-        
+
         // 1. Ambil prefix
         $routePrefix = $this->getRolePrefix();
-        
+
         // 2. Tentukan path view
         $viewPath = $routePrefix . '.produk.edit';
-        
+
         // 3. Ambil data kategori (untuk dropdown <select>)
         $kategoris = KategoriProduk::all();
-        
+
         // 4. Kirim data (produk yg mau diedit, kategori, prefix) ke view
         return view($viewPath, compact('produk', 'kategoris', 'routePrefix'));
     }
@@ -154,12 +154,12 @@ class ProdukController extends Controller
     {
         // 1. Validasi terjadi OTOMATIS.
         // 2. $produk sudah ada berkat Route Model Binding.
-        
+
         $validatedData = $request->validated();
 
         // 3. Logika Handle File Upload (Update)
         if ($request->hasFile('path_gambar')) {
-            
+
             // A. Hapus file lama jika ada
             if ($produk->path_gambar) {
                 Storage::disk('public')->delete($produk->path_gambar);
@@ -176,7 +176,7 @@ class ProdukController extends Controller
         // 5. Redirect dinamis
         $routePrefix = $this->getRolePrefix();
         return redirect()->route($routePrefix . '.produk.index')
-                         ->with('success', 'Produk berhasil diperbarui.');
+            ->with('success', 'Produk berhasil diperbarui.');
     }
 
     /**
@@ -184,21 +184,45 @@ class ProdukController extends Controller
      * Method: DELETE
      * Rute: admin.produk.destroy/{produk} ATAU pemilik.produk.destroy/{produk}
      */
+    /**
+     * Hapus produk dari database.
+     */
+    /**
+     * Hapus produk dari database.
+     */
     public function destroy(Produk $produk)
     {
-        // 1. $produk sudah ada berkat Route Model Binding.
-
-        // 2. Hapus file gambar dari storage
-        if ($produk->path_gambar) {
-            Storage::disk('public')->delete($produk->path_gambar);
-        }
-        
-        // 3. Hapus data produk dari database
-        $produk->delete();
-
-        // 4. Redirect dinamis
+        // (BARU) Ambil prefix role yang sedang login
         $routePrefix = $this->getRolePrefix();
-        return redirect()->route($routePrefix . '.produk.index')
-                         ->with('success', 'Produk berhasil dihapus.');
+
+        try {
+            // 1. Cek dulu apakah produk ini ada di 'detail_transaksis'
+            if ($produk->detailTransaksis()->exists()) {
+                // (MODIFIKASI) Gunakan $routePrefix
+                return redirect()->route($routePrefix . '.produk.index')
+                    ->with('error', 'Produk tidak bisa dihapus karena sudah ada di riwayat transaksi.');
+            }
+
+            // 2. Jika aman (tidak ada di transaksi), baru hapus
+            if ($produk->path_gambar) {
+                Storage::disk('public')->delete($produk->path_gambar);
+            }
+
+            $produk->delete();
+
+            // (MODIFIKASI) Gunakan $routePrefix
+            return redirect()->route($routePrefix . '.produk.index')
+                ->with('success', 'Produk berhasil dihapus.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            // 3. (Pengaman) Tangkap error SQL
+            // (MODIFIKASI) Gunakan $routePrefix
+            return redirect()->route($routePrefix . '.produk.index')
+                ->with('error', 'Gagal menghapus produk. Produk ini terkait dengan data lain.');
+        } catch (\Exception $e) {
+            // 4. (Pengaman) Tangkap error lainnya
+            // (MODIFIKASI) Gunakan $routePrefix
+            return redirect()->route($routePrefix . '.produk.index')
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 }

@@ -7,7 +7,7 @@ use App\Models\KategoriProduk;
 use App\Models\Transaksi;
 use App\Models\DetailTransaksi;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Http\Requests\StoreTransaksiRequest; // (BARU) Import Request kustom kita
 
@@ -79,7 +79,7 @@ class KatalogController extends Controller
                     'id_transaksi' => $transaksi->id,
                     'id_produk' => $itemData['produk_id'],
                     'jumlah' => $itemData['jumlah'],
-                    'harga_saat_transaksi' => $itemData['harga'], 
+                    'harga_saat_transaksi' => $itemData['harga'],
                 ]);
 
                 // Kurangi stok produk
@@ -91,8 +91,10 @@ class KatalogController extends Controller
 
             // (MODIFIKASI) Kirim respons JSON sukses
             return response()->json([
-                'success' => 'Transaksi berhasil disimpan! Kode: ' . $transaksi->kode_transaksi
-            ], 200); // 200 = OK
+                'success' => true,
+                'message' => 'Transaksi berhasil disimpan! Kode: ' . $transaksi->kode_transaksi,
+                'kode_transaksi' => $transaksi->kode_transaksi // <-- INI YANG PENTING
+            ], 200);
 
         } catch (\Exception $e) {
             // 6. Jika ada error, rollback semua
