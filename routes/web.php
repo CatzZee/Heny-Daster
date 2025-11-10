@@ -8,6 +8,7 @@ use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\Pemilik\DashboardController as PemilikDashboard;
 use App\Http\Controllers\ProdukController as ProdukController;
 use App\Http\Controllers\StrukController;
+use App\Http\Controllers\Pemilik\AkunController;
 
 // === RUTE TAMU (Tidak Perlu Login) ===
 // Tidak ada middleware 'auth' di sini
@@ -43,5 +44,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [PemilikDashboard::class, 'index'])->name('dashboard');
         Route::resource('produk', ProdukController::class);
         Route::post('/transaksi', [KatalogController::class, 'store'])->name('transaksi.store');
+        Route::resource('akun', AkunController::class);
     });
 }); // <-- Akhir dari grup 'auth'
