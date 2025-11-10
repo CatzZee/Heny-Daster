@@ -314,10 +314,7 @@
                 <a class="nav-link" href="#">Riwayat Transaksi</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Laporan Keuangan</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Data Akun</a>
+                <a class="nav-link" href="{{ route($routePrefix . '.akun.index') }}">Data Akun</a>
             </li>
             <li class="nav-item">
                 {{-- [PERUBAHAN 2: Tombol Logout] --}}

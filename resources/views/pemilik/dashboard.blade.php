@@ -237,6 +237,7 @@
 </head>
 
 <body>
+    
     <div class="sidebar">
         <nav class="navbar mb-3">
             <a class="navbar-brand" href="#">Heny Daster</a>
@@ -253,10 +254,7 @@
                 <a class="nav-link" href="#">Riwayat Transaksi</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Laporan Keuangan</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Data Akun</a>
+                <a class="nav-link" href="{{ route($routePrefix . '.akun.index') }}">Data Akun</a>
             </li>
         </ul>
 
