@@ -16,7 +16,9 @@ return new class extends Migration
                 ->constrained('kategori_produks')
                 ->onUpdate('cascade')
                 ->onDelete('restrict'); // atau onDelete('set null') jika diizinkan
-
+                
+            $table->string('ukuran_baju')->nullable(); // Sesuai dengan Ukuran_baju
+            $table->string('path_gambar')->nullable(); // Sesuai dengan Path_Gambar
             $table->string('nama_produk'); // Nama_Produk
             $table->decimal('harga_produk', 10, 2); // Harga_produk DECIMAL(10,2)
             $table->integer('stok_produk'); // Stok_Produk

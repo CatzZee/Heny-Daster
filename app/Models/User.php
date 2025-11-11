@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Transaksi;
 
 class User extends Authenticatable
 {
@@ -11,9 +12,9 @@ class User extends Authenticatable
 
     protected $fillable = [
         'nama',
-        'email',
         'password',
         'role',
+        'path_gambar',
     ];
 
     protected $hidden = [
