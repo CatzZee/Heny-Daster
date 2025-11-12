@@ -273,6 +273,33 @@
             background: #ff69b4;
         }
 
+        .sidebar-footer {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            padding: 0 20px;
+        }
+
+        .logout-button {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            background-color: #ff69b4;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background-color: #d9538f;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 margin-left: 0;
@@ -316,15 +343,15 @@
             <li class="nav-item">
                 <a class="nav-link" href="{{ route($routePrefix . '.akun.index') }}">Data Akun</a>
             </li>
-            <li class="nav-item">
-                {{-- [PERUBAHAN 2: Tombol Logout] --}}
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="nav-link"
-                        style="background:none; border:none; width:100%; text-align:center;">Logout</button>
-                </form>
-            </li>
         </ul>
+        <div class="sidebar-footer">
+            <form action="{{ route('logout') }}" method="POST" style="margin: 0; padding: 0;">
+                @csrf
+                <button type="submit" class="logout-button">
+                    Logout
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Konten Utama -->

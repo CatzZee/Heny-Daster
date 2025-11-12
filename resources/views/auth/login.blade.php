@@ -18,7 +18,7 @@
             width: 100%;
             height: 100%;
             font-family: Arial, sans-serif;
-            overflow-x: hidden;
+            overflow-x: none;
         }
 
         /* Kotak pink di background */
