@@ -4,8 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard</title>
+
+    {{-- (MODIFIKASI) Menggunakan CSS Asli Kamu --}}
     <style>
         body,
         html {
@@ -14,9 +20,11 @@
             margin: 0;
             padding: 0;
             background-color: #fff;
+            overflow: hidden;
+            /* Mencegah body scroll */
         }
 
-        /* Sidebar */
+        /* Sidebar Kiri */
         .sidebar {
             background-color: #ff9cc7;
             height: 100vh;
@@ -27,11 +35,14 @@
             left: 0;
         }
 
-        .sidebar .navbar .navbar-brand {
-            padding: 60px 20px;
+            .sidebar .navbar .navbar-brand {
+            padding: 60px 30px;
             font-weight: bold;
             display: block;
             color: white;
+            font-family: 'Great Vibes', cursive;
+            font-size: 30px;  
+            letter-spacing: 1px;  
         }
 
         .sidebar .nav-link {
@@ -49,11 +60,16 @@
             width: 100%;
         }
 
-        /* Area kanan (konten utama + kategori) */
+        /* Konten Tengah */
         .main-content {
             margin-left: 230px;
             margin-right: 270px;
+            /* (MODIFIKASI) Pastikan ini cukup untuk sidebar kanan */
             padding: 20px;
+            height: 100vh;
+            /* (BARU) */
+            overflow-y: auto;
+            /* (BARU) Konten tengah bisa di-scroll */
         }
 
         /* Kategori scroll horizontal */
@@ -98,10 +114,12 @@
             border-color: #ff69b4;
         }
 
+        /* Grid Produk */
         .menu-baju {
             margin-left: 20px;
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            /* (MODIFIKASI) Responsif */
             gap: 40px 20px;
             justify-items: center;
             margin-top: 20px;
@@ -119,6 +137,8 @@
             transition: transform 0.3s ease;
             overflow: visible;
             margin-bottom: 30px;
+            cursor: pointer;
+            /* (BARU) Menandakan bisa diklik */
         }
 
         .card-baju:hover {
@@ -158,139 +178,122 @@
             text-align: center;
         }
 
-        /* Sidebar kanan (keranjang) */
+        /* Sidebar Kanan (Keranjang) */
         .offcanvas-end {
             background-color: #fff;
             border-left: 2px solid #ffc0cb;
+            width: 270px;
+            /* (MODIFIKASI) Sesuaikan dengan margin-right .main-content */
         }
 
-        .offcanvas-title {
-            color: #ff69b4;
-            font-weight: bold;
-        }
-
-        ::placeholder {
-            color: #ff9cc7 !important;
-        }
-
-        .metode-bayar:hover {
-            background-color: #ffe6f2;
-            transform: translateY(-2px);
-        }
-
-        .metode-bayar.active {
-            background-color: #ffb3d9;
-            color: white;
-        }
-
-        #btnProses:hover {
-            background-color: #ff99c7;
-            transform: translateY(-2px);
-        }
-
-        .pembayaran-container {
-            display: flex;
-            overflow-x: auto;
-            white-space: nowrap;
-            gap: 10px;
-            padding: 10px 0;
-            scroll-behavior: smooth;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .pembayaran-container::-webkit-scrollbar {
-            display: none;
-        }
-
-        .pembayaran-item {
-            flex: 0 0 auto;
-            padding: 10px 25px;
-            background-color: #ffffff;
-            border: 3px solid #ffc0cb;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            color: #ffc0cb;
-            user-select: none;
-            font-weight: bold;
-        }
-
-        .pembayaran-item:hover {
-            background-color: #ffc0cb;
-            color: white;
-            border-color: #ffc0cb;
-        }
-
-        .pembayaran-item.active {
-            background-color: #ff69b4;
-            color: white;
-            border-color: #ff69b4;
-        }
-
-        /* ... (CSS kamu yang sudah ada) ... */
-
-        /* === CSS UNTUK LOGOUT === */
-
-        /* Ini adalah wrapper/container untuk tombol logout.
-  Kita pakai position: absolute agar dia "terkunci" di bagian bawah.
-*/
+        /* Tombol Logout */
         .sidebar-footer {
             position: absolute;
-            /* Mengunci posisi relatif terhadap .sidebar */
             bottom: 20px;
-            /* Beri jarak 20px dari bawah */
             left: 0;
             right: 0;
             padding: 0 20px;
-            /* Samakan padding kiri-kanan dengan .navbar-brand */
         }
 
-        /* Ini adalah style untuk tombol logoutnya.
-  Dibuat agar mirip dengan tema pink kamu.
-*/
         .logout-button {
             display: block;
             width: 100%;
             padding: 12px 15px;
             background-color: #ff69b4;
-            /* Warna pink yang sama dengan nav active */
             color: white;
             font-weight: bold;
             text-align: center;
             text-decoration: none;
-            /* Hilangkan garis bawah dari tag <a> */
             border-radius: 15px;
-            /* Samakan dengan radius nav-link */
             transition: all 0.3s ease;
             border: none;
-            /* Menghilangkan border default browser */
             cursor: pointer;
         }
 
-        /* Efek hover agar lebih interaktif */
         .logout-button:hover {
             background-color: #d9538f;
-            /* Warna pink sedikit lebih gelap */
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
+        /* (BARU) Style untuk item di keranjang */
+        .cart-item {
+            font-size: 0.9rem;
+        }
+
+        .cart-item-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .cart-item-controls button {
+            width: 25px;
+            height: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+        }
+
+        .cart-item-controls .btn-remove {
+            width: 25px;
+            height: 25px;
+            padding: 0;
+            font-size: 0.8rem;
+        }
+            /* Custom styling untuk button outline */
+    .btn-outline-danger {
+        border-color: #ff9cc7 !important;
+        color: #ff3b91 !important;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #ff9cc7 !important;
+        border-color: #ff9cc7 !important;
+        color: white !important;
+    }
+
+    .btn-outline-danger:active,
+    .btn-outline-danger:focus {
+        background-color: #ff69b4 !important;
+        border-color: #ff69b4 !important;
+        color: white !important;
+    }
+
+    .btn-check:checked + .btn-outline-danger {
+        background-color: #ff69b4 !important;
+        border-color: #ff69b4 !important;
+        color: white !important;
+    }
+   
+        .offcanvas-header {
+        background: linear-gradient(135deg, #ffb3d9 0%, #ff9cc7 100%);
+        border-radius: 0;
+    }
+
+        .offcanvas-header h4 {
+            color: white !important;
+              font-family: 'Great Vibes', cursive;
+              font-size: 30px;  
+              font-weight: bold;
+            letter-spacing: 1px;  
+        }
+
+
     </style>
 </head>
 
 <body>
-    <!-- Sidebar Kiri -->
+    
     <div class="sidebar">
         <nav class="navbar mb-3">
             <a class="navbar-brand" href="#">Heny Daster</a>
         </nav>
         <ul class="nav flex-column" id="menu">
             <li class="nav-item">
-                <a class="nav-link active" href="#">Dashboard</a>
+                <a class="nav-link active" href="#">Katalog</a>
             </li>
+           
             <li class="nav-item">
-                <a class="nav-link" href="#">Riwayat Pesanan</a>
+                <a class="nav-link" href="#">Riwayat Transaksi</a>
             </li>
         </ul>
 
@@ -304,210 +307,394 @@
         </div>
     </div>
 
-    <!-- Konten utama -->
     <div class="main-content">
-        <!-- Kategori di samping sidebar -->
+
+
         <div class="kategori-container mb-4">
-            <div class="kategori-item active">Semua</div>
-            <div class="kategori-item">Favorit</div>
-            <div class="kategori-item">Daster Pendek</div>
-            <div class="kategori-item">Daster Panjang</div>
-            <div class="kategori-item">Babydoll</div>
+            <div class="kategori-item active" data-kategori-id="semua">Semua</div>
+            @foreach ($kategoris as $kategori)
+                <div class="kategori-item" data-kategori-id="{{ $kategori->id }}">{{ $kategori->nama_kategori }}</div>
+            @endforeach
         </div>
 
-        <!-- Kotak-kotak menu baju -->
         <div class="menu-baju mt-4">
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Pendek">
-                <div class="harga">90K</div>
-                <p class="nama-baju">Daster Pendek</p>
-            </div>
 
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Panjang">
-                <div class="harga">100K</div>
-                <p class="nama-baju">Daster Panjang</p>
-            </div>
+            {{-- (KEMBALIKAN) Loop $produks biasa --}}
+            @forelse ($produks as $produk)
+                {{-- (BARU) Sesuai idemu: buat nama tampilan dengan ukuran --}}
+                @php
+                    $nama_display = $produk->nama_produk;
+                    if ($produk->ukuran_baju) {
+                        $nama_display .= ' (' . $produk->ukuran_baju . ')';
+                    }
+                @endphp
 
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Babydoll">
-                <div class="harga">85K</div>
-                <p class="nama-baju">Babydoll</p>
-            </div>
+                <div class="card-baju product-item" {{-- (KEMBALIKAN) class 'product-item' --}} data-kategori-id="{{ $produk->id_kategori }}"
+                    data-id="{{ $produk->id }}" data-nama="{{ $produk->nama_produk }}" {{-- (PENTING) Data nama sekarang + ukuran --}}
+                    data-harga="{{ $produk->harga_produk }}" data-stok="{{ $produk->stok_produk }}"
+                    {{-- (HAPUS) data-bs-toggle dan data-bs-target dihapus --}}>
 
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Santai">
-                <div class="harga">95K</div>
-                <p class="nama-baju">Kemeja Santai</p>
-            </div>
+                    <img src="{{ $produk->path_gambar ? Storage::url($produk->path_gambar) : 'https://via.placeholder.com/200' }}"
+                        alt="{{ $produk->nama_produk }}">
 
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Motif">
-                <div class="harga">92K</div>
-                <p class="nama-baju">Daster Motif</p>
-            </div>
+                    <div class="harga">{{ round($produk->harga_produk / 1000) }}K</div>
 
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Bali">
-                <div class="harga">88K</div>
-                <p class="nama-baju">Daster Bali</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Babydoll Premium">
-                <div class="harga">110K</div>
-                <p class="nama-baju">Babydoll Premium</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Jumbo">
-                <div class="harga">105K</div>
-                <p class="nama-baju">Daster Jumbo</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Polos">
-                <div class="harga">80K</div>
-                <p class="nama-baju">Daster Polos</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
+                    {{-- (PENTING) Tampilkan nama dengan ukuran --}}
+                    <p class="nama-baju">{{ $nama_display }}</p>
+                </div>
+            @empty
+                <div style="grid-column: 1 / -1; text-align: center; color: #ff3b91; padding: 50px;">
+                    <h3>Oops!</h3>
+                    <p>Belum ada produk yang tersedia.</p>
+                </div>
+            @endforelse
         </div>
     </div>
 
-    <!-- Sidebar Kanan (Keranjang) -->
-    <div class="offcanvas offcanvas-end show" id="offcanvasNavbar" tabindex="-1"
-        aria-labelledby="offcanvasNavbarLabel" style="visibility: visible; position: fixed; width: 250px;">
-        <div class="offcanvas-header">
-            <h4 style="color: #ffb3d9; font-weight: bold;">Keranjang</h4>
+    <div class="offcanvas offcanvas-end show" id="offcanvasNavbar" tabindex="-1" aria-labelledby="offcanvasNavbarLabel"
+        style="visibility: visible; position: fixed;">
+      <div class="offcanvas-header justify-content-center">
+            <h4 >Keranjang</h4>
         </div>
 
         <div class="offcanvas-body">
             <div class="container-fluid">
-                <div class="row g-2 mb-3">
-                    <div class="col-6">
-                        <input class="form-control text-center" type="text" placeholder="Orderan" disabled
-                            style="color:#ff3b91; border-radius:20px;">
-                    </div>
-                    <div class="col-6">
-                        <input class="form-control" list="datalistOptions" placeholder=""
-                            style=" border-radius:20px;">
-                        <datalist id="datalistOptions"></datalist>
-                    </div>
+
+                <div class="mb-3">
+                    <label for="nama_pembeli" class="form-label" style="color: #ff3b91;">Nama Pembeli</label>
+                    <input type="text" class="form-control" id="nama_pembeli" placeholder="Masukkan nama..." required
+                        style="border-radius: 20px; border-color: #ffc0cb;">
                 </div>
 
-                <!-- Area untuk item keranjang bisa ditambahkan di sini -->
+                <h6 class="text-secondary fw-bold">Items</h6>
+                <div id="cart-items-list" style="max-height: 250px; overflow-y: auto; min-height: 50px;">
+                    <p class="text-center text-muted" id="cart-empty-msg">Keranjang kosong</p>
+                </div>
 
-                <!-- Bagian Pembayaran -->
+                <hr>
+
+                <div class="d-flex justify-content-between">
+                    <h5 style="color: #ff3b91;">Total</h5>
+                    <h5 class="fw-bold" id="cart-total" style="color: #ff3b91;">Rp 0</h5>
+                </div>
+
+                <div class="mb-3 mt-2">
+                    <label for="jumlah_bayar" class="form-label" style="color: #ff3b91;">Jumlah Bayar</label>
+                    <input type="number" class="form-control" id="jumlah_bayar" placeholder="Rp 0"
+                        style="border-radius: 20px; border-color: #ffc0cb;">
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <p style="color: #ff3b91;">Kembalian</p>
+                    <p class="fw-bold" id="kembalian" style="color: #ff3b91;">Rp 0</p>
+                </div>
+
                 <div style="position: absolute; bottom: 20px; left: 15px; right: 15px;">
-                    <h5 style="color: #ffb3d9; font-weight: bold; margin-bottom: 15px;">Pembayaran</h5>
+                    <h5 style="color: #ffb3d9; font-weight: bold; margin-bottom: 15px;">Metode Pembayaran</h5>
 
-                    <div class="pembayaran-container mb-3">
-                        <div class="pembayaran-item active">Tunai</div>
-                        <div class="pembayaran-item">Qris</div>
-                        <div class="pembayaran-item">Transfer</div>
+                    {{-- Menggunakan radio button agar mudah diambil valuenya --}}
+                    <div class="btn-group w-100 mb-3" role="group">
+                        <input type="radio" class="btn-check" name="metode_pembayaran" id="metodeTunai"
+                            value="Tunai" autocomplete="off" checked>
+                        <label class="btn btn-outline-danger" for="metodeTunai">Tunai</label>
+
+                        <input type="radio" class="btn-check" name="metode_pembayaran" id="metodeQris"
+                            value="Qris" autocomplete="off">
+                        <label class="btn btn-outline-danger" for="metodeQris">Qris</label>
                     </div>
 
                     <button id="btnProses"
-                        style="width: 100%; padding: 15px; background-color: #ffb3d9; color: white; border: none; border-radius: 25px; font-weight: bold; font-size: 16px; cursor: pointer; transition: all 0.3s;">Proses</button>
+                        style="width: 100%; padding: 15px; background-color: #ffb3d9; color: white; border: none; border-radius: 25px; font-weight: bold; font-size: 16px; cursor: pointer; transition: all 0.3s;">
+                        Proses
+                    </button>
+                    <button id="btnBatal"
+                        style="width: 100%; padding: 10px; background-color: transparent; color: #ff3b91; border: none; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 10px;">
+                        Batal
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
+    {{-- (MODIFIKASI) JavaScript Fungsional Total --}}
     <script>
-        // kategori
-        const kategoriItems = document.querySelectorAll('.kategori-item');
-        kategoriItems.forEach(item => {
-            item.addEventListener('click', () => {
-                kategoriItems.forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- STATE APLIKASI ---
+            let cart = []; // Keranjang belanja
+
+            // --- AMBIL ELEMEN PENTING ---
+            const cartItemsList = document.getElementById('cart-items-list');
+            const cartEmptyMsg = document.getElementById('cart-empty-msg');
+            const cartTotalEl = document.getElementById('cart-total');
+            const btnProses = document.getElementById('btnProses');
+            const btnBatal = document.getElementById('btnBatal');
+            const namaPembeliEl = document.getElementById('nama_pembeli');
+            const jumlahBayarEl = document.getElementById('jumlah_bayar');
+            const kembalianEl = document.getElementById('kembalian');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            const kategoriItems = document.querySelectorAll('.kategori-item');
+            const productCards = document.querySelectorAll('.product-item');
+
+            // --- FUNGSI ---
+
+            // (BARU) Fungsi untuk Filter Kategori
+            const filterKategori = (kategoriId) => {
+                productCards.forEach(card => {
+                    const cardKategoriId = card.getAttribute('data-kategori-id');
+
+                    if (kategoriId === 'semua' || cardKategoriId === kategoriId) {
+                        card.style.display = 'block'; // Tampilkan
+                    } else {
+                        card.style.display = 'none'; // Sembunyikan
+                    }
+                });
+            };
+
+            // Fungsi untuk menambah item ke keranjang
+            const addItemToCart = (productData) => {
+                const productId = productData.id;
+                const productName = productData.nama;
+                const productPrice = parseFloat(productData.harga);
+                const productStok = parseInt(productData.stok);
+
+                if (productStok <= 0) {
+                    alert('Stok produk ' + productName + ' habis!');
+                    return;
+                }
+
+                const existingItem = cart.find(item => item.id == productId);
+
+                if (existingItem) {
+                    if (existingItem.jumlah < productStok) {
+                        existingItem.jumlah++;
+                    } else {
+                        alert('Stok produk ' + productName + ' tidak mencukupi!');
+                    }
+                } else {
+                    cart.push({
+                        id: productId,
+                        nama: productName,
+                        harga: productPrice,
+                        jumlah: 1,
+                        stok: productStok
+                    });
+                }
+                renderCart();
+            };
+
+            // Fungsi untuk me-render tampilan keranjang
+            const renderCart = () => {
+                if (cart.length === 0) {
+                    cartItemsList.innerHTML = '';
+                    cartEmptyMsg.style.display = 'block';
+                } else {
+                    cartEmptyMsg.style.display = 'none';
+                    cartItemsList.innerHTML = '';
+
+                    cart.forEach(item => {
+                        const itemHtml = `
+                        <div class="d-flex justify-content-between align-items-center mb-2 cart-item">
+                            <div>
+                                <h6 class="mb-0">${item.nama}</h6>
+                                <small class="text-muted">Rp ${formatRupiah(item.harga)}</small>
+                            </div>
+                            <div class="cart-item-controls">
+                                <button class="btn btn-sm btn-outline-danger btn-qty-decrease" data-id="${item.id}">-</button>
+                                <span class="mx-2">${item.jumlah}</span>
+                                <button class="btn btn-sm btn-outline-danger btn-qty-increase" data-id="${item.id}">+</button>
+                                <button class="btn btn-sm btn-danger ms-2 btn-remove-item" data-id="${item.id}">X</button>
+                            </div>
+                        </div>
+                    `;
+                        cartItemsList.innerHTML += itemHtml;
+                    });
+                }
+                updateTotals();
+            };
+
+            // Fungsi untuk update total harga dan kembalian
+            const updateTotals = () => {
+                const totalHarga = cart.reduce((total, item) => total + (item.harga * item.jumlah), 0);
+                cartTotalEl.innerText = `Rp ${formatRupiah(totalHarga)}`;
+
+                const jumlahBayar = parseFloat(jumlahBayarEl.value) || 0;
+                const kembalian = jumlahBayar - totalHarga;
+
+                if (kembalian >= 0) {
+                    kembalianEl.innerText = `Rp ${formatRupiah(kembalian)}`;
+                } else {
+                    kembalianEl.innerText = `-Rp ${formatRupiah(Math.abs(kembalian))}`;
+                }
+            };
+
+            // Fungsi untuk memproses transaksi
+            const processTransaction = async () => {
+                const namaPembeli = namaPembeliEl.value;
+                const metodePembayaran = document.querySelector('input[name="metode_pembayaran"]:checked')
+                    .value;
+                const totalHarga = cart.reduce((total, item) => total + (item.harga * item.jumlah), 0);
+                const jumlahBayar = parseFloat(jumlahBayarEl.value) || 0;
+
+                const items = cart.map(item => ({
+                    produk_id: item.id,
+                    jumlah: item.jumlah,
+                    harga: item.harga
+                }));
+
+                if (cart.length === 0) {
+                    alert('Keranjang masih kosong!');
+                    return;
+                }
+                if (namaPembeli.trim() === '') {
+                    alert('Nama Pembeli wajib diisi!');
+                    namaPembeliEl.focus();
+                    return;
+                }
+                if (jumlahBayar < totalHarga) {
+                    alert('Jumlah bayar kurang dari total harga!');
+                    jumlahBayarEl.focus();
+                    return;
+                }
+
+                if (!confirm('Proses transaksi ini?')) {
+                    return;
+                }
+
+                try {
+                    // Menggunakan $routePrefix dari Blade
+                    const response = await fetch("{{ route($routePrefix . '.transaksi.store') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            nama_pembeli: namaPembeli,
+                            metode_pembayaran: metodePembayaran,
+                            total_harga: totalHarga,
+                            jumlah_bayar: jumlahBayar,
+                            items: items
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+
+                        // 1. Ambil kode transaksi dari response JSON
+                        const kodeTransaksi = result.kode_transaksi;
+
+                        // 2. Buat URL ke route cetak struk
+                        const strukUrl = `/cetak-struk/${kodeTransaksi}`;
+
+                        // 4. (MODIFIKASI) Redirect halaman ke URL struk
+                        window.location.href = strukUrl;
+
+                        // Kita tidak perlu memanggil resetTransaksi() lagi
+                        // karena halaman ini akan ditinggalkan.
+                    } else {
+
+                        if (response.status === 422) {
+                            let errorMsg = 'Validasi Gagal:\n';
+                            for (const key in result.errors) {
+                                errorMsg += `${result.errors[key].join(', ')}\n`;
+                            }
+                            alert(errorMsg);
+                        } else {
+                            alert('Error: ' + (result.error || 'Terjadi kesalahan di server'));
+                        }
+                    }
+                } catch (error) {
+                    console.error('Fetch Error:', error);
+                    alert('Tidak dapat terhubung ke server.');
+                }
+            };
+
+            // Fungsi untuk mereset transaksi
+            const resetTransaksi = () => {
+                cart = [];
+                namaPembeliEl.value = '';
+                jumlahBayarEl.value = '';
+                document.getElementById('metodeTunai').checked = true;
+                renderCart();
+                // Reload halaman untuk refresh stok produk
+                window.location.reload();
+            };
+
+            // Fungsi untuk menangani aksi di keranjang
+            const handleCartActions = (e) => {
+                const target = e.target;
+                const productId = target.closest('[data-id]').dataset.id;
+                if (!productId) return;
+
+                const itemIndex = cart.findIndex(item => item.id == productId);
+                if (itemIndex === -1) return;
+
+                const item = cart[itemIndex];
+
+                if (target.classList.contains('btn-qty-increase')) {
+                    if (item.jumlah < item.stok) {
+                        item.jumlah++;
+                    } else {
+                        alert('Stok tidak mencukupi!');
+                    }
+                } else if (target.classList.contains('btn-qty-decrease')) {
+                    item.jumlah--;
+                    if (item.jumlah === 0) {
+                        cart.splice(itemIndex, 1);
+                    }
+                } else if (target.classList.contains('btn-remove-item')) {
+                    cart.splice(itemIndex, 1);
+                }
+                renderCart();
+            };
+
+            const formatRupiah = (angka) => {
+                return new Intl.NumberFormat('id-ID').format(angka);
+            };
+
+            // --- EVENT LISTENERS ---
+
+            // (BARU) Listener untuk Kategori
+            kategoriItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // Toggle active class
+                    kategoriItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+
+                    // Filter
+                    const filterId = item.getAttribute('data-kategori-id');
+                    filterKategori(filterId);
+                });
             });
-        });
 
-        const navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                navItems.forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
+            // Listener untuk klik produk
+            document.querySelector('.menu-baju').addEventListener('click', (e) => {
+                const productCard = e.target.closest('.product-item');
+                if (productCard) {
+                    addItemToCart(productCard.dataset);
+                }
             });
-        });
 
-        // Scroll horizontal kategori 
-        const kategoriContainer = document.querySelector('.kategori-container');
-        kategoriContainer.addEventListener('wheel', (evt) => {
-            evt.preventDefault();
-            kategoriContainer.scrollLeft += evt.deltaY;
-        });
+            // Listener untuk aksi di keranjang
+            cartItemsList.addEventListener('click', handleCartActions);
 
-        // hover pembayaran
-        const pembayaranItems = document.querySelectorAll('.pembayaran-item');
-        let metodeSelected = 'Tunai'; // default
+            // Listener untuk update kembalian
+            jumlahBayarEl.addEventListener('input', updateTotals);
 
-        pembayaranItems.forEach(item => {
-            item.addEventListener('click', () => {
-                pembayaranItems.forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                metodeSelected = item.textContent;
+            // Listener tombol Proses
+            btnProses.addEventListener('click', processTransaction);
+
+            // Listener tombol Batal
+            btnBatal.addEventListener('click', () => {
+                if (confirm('Batalkan transaksi ini dan kosongkan keranjang?')) {
+                    resetTransaksi();
+                }
             });
-        });
 
-        // Scroll horizontal pembayaran 
-        const pembayaranContainer = document.querySelector('.pembayaran-container');
-        pembayaranContainer.addEventListener('wheel', (evt) => {
-            evt.preventDefault();
-            pembayaranContainer.scrollLeft += evt.deltaY;
-        });
-
-        // Tombol proses
-        document.getElementById('btnProses').addEventListener('click', () => {
-            alert('Memproses pembayaran dengan metode: ' + metodeSelected);
         });
     </script>
 </body>
