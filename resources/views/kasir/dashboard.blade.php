@@ -264,6 +264,7 @@
 
     <div class="main-content">
 
+
         <div class="kategori-container mb-4">
             <div class="kategori-item active" data-kategori-id="semua">Semua</div>
             @foreach ($kategoris as $kategori)
@@ -284,12 +285,12 @@
                 @endphp
 
                 <div class="card-baju product-item" {{-- (KEMBALIKAN) class 'product-item' --}} data-kategori-id="{{ $produk->id_kategori }}"
-                    data-id="{{ $produk->id }}" data-nama="{{ $nama_display }}" {{-- (PENTING) Data nama sekarang + ukuran --}}
+                    data-id="{{ $produk->id }}" data-nama="{{ $produk->nama_produk }}" {{-- (PENTING) Data nama sekarang + ukuran --}}
                     data-harga="{{ $produk->harga_produk }}" data-stok="{{ $produk->stok_produk }}"
                     {{-- (HAPUS) data-bs-toggle dan data-bs-target dihapus --}}>
 
                     <img src="{{ $produk->path_gambar ? Storage::url($produk->path_gambar) : 'https://via.placeholder.com/200' }}"
-                        alt="{{ $nama_display }}">
+                        alt="{{ $produk->nama_produk }}">
 
                     <div class="harga">{{ round($produk->harga_produk / 1000) }}K</div>
 
