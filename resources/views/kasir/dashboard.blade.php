@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard</title>
 
@@ -32,11 +35,14 @@
             left: 0;
         }
 
-        .sidebar .navbar .navbar-brand {
-            padding: 60px 20px;
+            .sidebar .navbar .navbar-brand {
+            padding: 60px 30px;
             font-weight: bold;
             display: block;
             color: white;
+            font-family: 'Great Vibes', cursive;
+            font-size: 30px;  
+            letter-spacing: 1px;  
         }
 
         .sidebar .nav-link {
@@ -233,6 +239,45 @@
             padding: 0;
             font-size: 0.8rem;
         }
+            /* Custom styling untuk button outline */
+    .btn-outline-danger {
+        border-color: #ff9cc7 !important;
+        color: #ff3b91 !important;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #ff9cc7 !important;
+        border-color: #ff9cc7 !important;
+        color: white !important;
+    }
+
+    .btn-outline-danger:active,
+    .btn-outline-danger:focus {
+        background-color: #ff69b4 !important;
+        border-color: #ff69b4 !important;
+        color: white !important;
+    }
+
+    .btn-check:checked + .btn-outline-danger {
+        background-color: #ff69b4 !important;
+        border-color: #ff69b4 !important;
+        color: white !important;
+    }
+   
+        .offcanvas-header {
+        background: linear-gradient(135deg, #ffb3d9 0%, #ff9cc7 100%);
+        border-radius: 0;
+    }
+
+        .offcanvas-header h4 {
+            color: white !important;
+              font-family: 'Great Vibes', cursive;
+              font-size: 30px;  
+              font-weight: bold;
+            letter-spacing: 1px;  
+        }
+
+
     </style>
 </head>
 
@@ -308,8 +353,8 @@
 
     <div class="offcanvas offcanvas-end show" id="offcanvasNavbar" tabindex="-1" aria-labelledby="offcanvasNavbarLabel"
         style="visibility: visible; position: fixed;">
-        <div class="offcanvas-header">
-            <h4 style="color: #ffb3d9; font-weight: bold;">Keranjang</h4>
+      <div class="offcanvas-header justify-content-center">
+            <h4 >Keranjang</h4>
         </div>
 
         <div class="offcanvas-body">
@@ -351,13 +396,11 @@
                     <div class="btn-group w-100 mb-3" role="group">
                         <input type="radio" class="btn-check" name="metode_pembayaran" id="metodeTunai"
                             value="Tunai" autocomplete="off" checked>
-                        <label class="btn btn-outline-danger" for="metodeTunai"
-                            style="border-color: #ffc0cb; color: #ff3b91;">Tunai</label>
+                        <label class="btn btn-outline-danger" for="metodeTunai">Tunai</label>
 
                         <input type="radio" class="btn-check" name="metode_pembayaran" id="metodeQris"
                             value="Qris" autocomplete="off">
-                        <label class="btn btn-outline-danger" for="metodeQris"
-                            style="border-color: #ffc0cb; color: #ff3b91;">Qris</label>
+                        <label class="btn btn-outline-danger" for="metodeQris">Qris</label>
                     </div>
 
                     <button id="btnProses"
