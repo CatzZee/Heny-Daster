@@ -7,26 +7,30 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Data Akun</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     {{-- (BARU) Link untuk font Poppins dan Ikon Bootstrap --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
         :root {
-            --bs-primary-rgb: 255, 105, 180; /* (BARU) Mengubah warna utama Bootstrap */
+            --bs-primary-rgb: 255, 105, 180;
+            /* (BARU) Mengubah warna utama Bootstrap */
             --bs-primary: #ff69b4;
         }
 
         body,
         html {
             height: 100%;
-            font-family: 'Poppins', sans-serif; /* (MODIFIKASI) Font lebih modern */
+            font-family: 'Poppins', sans-serif;
+            /* (MODIFIKASI) Font lebih modern */
             margin: 0;
             padding: 0;
-            background-color: #f8f9fa; /* (MODIFIKASI) Latar belakang konten */
+            background-color: #f8f9fa;
+            /* (MODIFIKASI) Latar belakang konten */
         }
 
         /* === Sidebar Kiri (TIDAK DIUBAH) === */
@@ -38,7 +42,8 @@
             position: fixed;
             top: 0;
             left: 0;
-            padding-top: 20px; /* (MODIFIKASI) Sedikit padding */
+            padding-top: 20px;
+            /* (MODIFIKASI) Sedikit padding */
         }
 
         .sidebar .navbar .navbar-brand {
@@ -51,7 +56,8 @@
         .sidebar .nav-link {
             color: white;
             font-weight: bold;
-            margin: 0 10px 10px 10px; /* (MODIFIKASI) Rapi */
+            margin: 0 10px 10px 10px;
+            /* (MODIFIKASI) Rapi */
             cursor: pointer;
             transition: background-color 0.3s;
         }
@@ -60,8 +66,10 @@
         .sidebar .nav-link:hover {
             background-color: #ff69b4;
             border-radius: 15px;
-            width: calc(100% - 20px); /* (MODIFIKASI) Rapi */
+            width: calc(100% - 20px);
+            /* (MODIFIKASI) Rapi */
         }
+
         /* === Akhir Sidebar === */
 
 
@@ -81,9 +89,10 @@
 
         h1 {
             color: #ff69b4;
-            font-weight: 600; /* (MODIFIKASI) */
+            font-weight: 600;
+            /* (MODIFIKASI) */
         }
-        
+
         /* (MODIFIKASI) Tombol Tambah (menggunakan style Bootstrap) */
         .btn-tambah {
             padding: 10px 25px;
@@ -124,7 +133,7 @@
             color: white;
             border-color: #ff9cc7;
         }
-        
+
         table th {
             font-weight: 500;
         }
@@ -148,17 +157,44 @@
             background-color: #e65f9a;
             border-color: #e65f9a;
         }
-        
+
         /* (BARU) Style tombol Batal di modal */
         .btn-batal {
-             background-color: #6c757d;
-             color: white;
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            padding: 0 20px;
+        }
+
+        .logout-button {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            background-color: #ff69b4;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background-color: #d9538f;
         }
     </style>
 </head>
 
 <body>
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
     <div class="sidebar">
         <nav class="navbar mb-3">
@@ -177,21 +213,23 @@
             <li class="nav-item">
                 <a class="nav-link active" href="{{ route($routePrefix . '.akun.index') }}">Data Akun</a>
             </li>
-            <li class="nav-item">
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="nav-link"
-                        style="background:none; border:none; width:100%; text-align:center;">Logout</button>
-                </form>
-            </li>
         </ul>
+        <div class="sidebar-footer">
+            <form action="{{ route('logout') }}" method="POST" style="margin: 0; padding: 0;">
+                @csrf
+                <button type="submit" class="logout-button">
+                    Logout
+                </button>
+            </form>
+        </div>
     </div>
 
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>👤 Data Akun</h1>
             {{-- (MODIFIKASI) Menggunakan data-bs-toggle Bootstrap --}}
-            <button class="btn btn-tambah" data-bs-toggle="modal" data-bs-target="#akunModal" onclick="openCreateModal()">
+            <button class="btn btn-tambah" data-bs-toggle="modal" data-bs-target="#akunModal"
+                onclick="openCreateModal()">
                 + Tambah Akun
             </button>
         </div>
@@ -225,10 +263,10 @@
         <div class="card card-table">
             <div class="card-body">
                 <div class="search-box mb-3">
-                    <input type="text" class="search-input form-control" placeholder="Cari akun (nama, role)..." id="searchInput"
-                        onkeyup="searchTable()">
+                    <input type="text" class="search-input form-control" placeholder="Cari akun (nama, role)..."
+                        id="searchInput" onkeyup="searchTable()">
                 </div>
-                
+
                 <div class="table-responsive">
                     <table class="table table-hover align-middle" id="stokTable">
                         <thead>
@@ -246,13 +284,13 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>
                                         <img class="table-avatar" {{-- (MODIFIKASI) Class baru --}}
-                                             src="{{ $user->path_gambar ? Storage::url($user->path_gambar) : 'https://via.placeholder.com/60' }}"
-                                             alt="{{ $user->nama }}">
+                                            src="{{ $user->path_gambar ? Storage::url($user->path_gambar) : 'https://via.placeholder.com/60' }}"
+                                            alt="{{ $user->nama }}">
                                     </td>
                                     <td>{{ $user->nama }}</td>
                                     <td>
                                         {{-- (MODIFIKASI) Badge untuk role --}}
-                                        @if($user->role == 'admin')
+                                        @if ($user->role == 'admin')
                                             <span class="badge bg-primary">{{ $user->role }}</span>
                                         @elseif($user->role == 'pemilik')
                                             <span class="badge bg-success">{{ $user->role }}</span>
@@ -262,14 +300,14 @@
                                     </td>
                                     <td>
                                         {{-- (MODIFIKASI) Tombol Aksi Bootstrap + Ikon --}}
-                                        <button class="btn btn-sm btn-info text-white" 
-                                            data-bs-toggle="modal" data-bs-target="#akunModal"
-                                            onclick="openEditModal({{ $user }})">
+                                        <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal"
+                                            data-bs-target="#akunModal" onclick="openEditModal({{ $user }})">
                                             <i class="bi bi-pencil-fill"></i> Edit
                                         </button>
 
-                                        <form action="{{ route($routePrefix . '.akun.destroy', $user) }}" method="POST"
-                                            class="d-inline" onsubmit="return confirm('Anda yakin ingin menghapus akun ini?');">
+                                        <form action="{{ route($routePrefix . '.akun.destroy', $user) }}"
+                                            method="POST" class="d-inline"
+                                            onsubmit="return confirm('Anda yakin ingin menghapus akun ini?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger"
@@ -297,7 +335,8 @@
                 <form id="formAkun" method="POST" action="" enctype="multipart/form-data">
                     <div class="modal-header" style="background: #fff0f5; border-bottom-color: #ffc0cb;">
                         <h2 class="modal-title fs-5" id="modalTitle" style="color: #ff69b4;">Tambah Akun Baru</h2>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         @csrf
@@ -305,7 +344,8 @@
 
                         <div class="mb-3">
                             <label for="path_gambar" class="form-label">Foto Akun (Opsional)</label>
-                            <input type="file" class="form-control" id="path_gambar" name="path_gambar" accept="image/*">
+                            <input type="file" class="form-control" id="path_gambar" name="path_gambar"
+                                accept="image/*">
                             <small class="form-text text-muted">Kosongkan jika tidak ingin mengubah foto.</small>
                         </div>
                         <div class="mb-3">
@@ -330,7 +370,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
-                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation">
+                            <input type="password" class="form-control" id="password_confirmation"
+                                name="password_confirmation">
                         </div>
                     </div>
                     <div class="modal-footer" style="background: #fff0f5; border-top-color: #ffc0cb;">
@@ -373,7 +414,7 @@
             passwordHelp.style.display = 'none';
             btnSimpan.disabled = false;
             btnSimpan.innerText = 'Simpan';
-            
+
             // (MODIFIKASI) Kita tidak perlu memanggil akunModal.show()
             // karena tombol "Tambah Akun" sudah punya data-bs-toggle
         }
@@ -392,7 +433,7 @@
             // Isi form
             document.getElementById('nama').value = user.nama;
             document.getElementById('role').value = user.role;
-            
+
             // (MODIFIKASI) Kita panggil .show() di sini karena 
             // tombol di tabel tidak punya data-bs-toggle
             // ...atau kita bisa tambahkan. Untuk konsistensi, kita panggil di sini:
@@ -445,4 +486,5 @@
         @endif
     </script>
 </body>
+
 </html>

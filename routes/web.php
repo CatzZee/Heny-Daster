@@ -33,10 +33,11 @@ Route::middleware(['auth'])->group(function () {
 
     // # ALUR C: "Penjaga Pintu Unit Kasir"
     // Hanya user dengan role 'kasir' yang boleh masuk
-    Route::middleware(['role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {
-        Route::get('/dashboard', [KasirDashboard::class, 'index'])->name('dashboard');
-        // ...rute kasir lainnya...
-    });
+   Route::middleware(['role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {
+    Route::get('/dashboard', [KasirDashboard::class, 'index'])->name('dashboard');
+    Route::post('/transaksi', [KatalogController::class, 'store'])->name('transaksi.store');
+});
+
 
     // # ALUR D: "Penjaga Pintu Unit Pemilik"
     // Hanya user dengan role 'pemilik' yang boleh masuk

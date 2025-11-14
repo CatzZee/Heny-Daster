@@ -237,7 +237,7 @@
 </head>
 
 <body>
-    
+
     <div class="sidebar">
         <nav class="navbar mb-3">
             <a class="navbar-brand" href="#">Heny Daster</a>
@@ -311,45 +311,61 @@
         </div>
     </div>
 
+    {{-- (PERBAIKAN) Ganti seluruh blok .offcanvas Anda dengan ini --}}
     <div class="offcanvas offcanvas-end show" id="offcanvasNavbar" tabindex="-1" aria-labelledby="offcanvasNavbarLabel"
         style="visibility: visible; position: fixed;">
         <div class="offcanvas-header">
             <h4 style="color: #ffb3d9; font-weight: bold;">Keranjang</h4>
         </div>
 
-        <div class="offcanvas-body">
-            <div class="container-fluid">
+        {{-- (PERUBAHAN) Menggunakan flexbox untuk layout --}}
+        {{-- (PERBAIKAN) Ganti seluruh blok .offcanvas Anda dengan ini --}}
+        <div class="offcanvas offcanvas-end show" id="offcanvasNavbar" tabindex="-1"
+            aria-labelledby="offcanvasNavbarLabel" style="visibility: visible; position: fixed;">
+            <div class="offcanvas-header">
+                <h4 style="color: #ffb3d9; font-weight: bold;">Keranjang</h4>
+            </div>
 
-                <div class="mb-3">
-                    <label for="nama_pembeli" class="form-label" style="color: #ff3b91;">Nama Pembeli</label>
-                    <input type="text" class="form-control" id="nama_pembeli" placeholder="Masukkan nama..." required
-                        style="border-radius: 20px; border-color: #ffc0cb;">
-                </div>
+            {{-- (PERUBAHAN) Menggunakan flexbox untuk layout --}}
+            <div class="offcanvas-body" style="display: flex; flex-direction: column; padding: 0;">
 
-                <h6 class="text-secondary fw-bold">Items</h6>
-                <div id="cart-items-list" style="max-height: 250px; overflow-y: auto; min-height: 50px;">
-                    <p class="text-center text-muted" id="cart-empty-msg">Keranjang kosong</p>
-                </div>
+                {{-- Bagian atas yang bisa scroll --}}
+                <div class="container-fluid" style="flex-grow: 1; overflow-y: auto; padding: 1.5rem;">
 
-                <hr>
+                    <div class="mb-3">
+                        <label for="nama_pembeli" class="form-label" style="color: #ff3b91;">Nama Pembeli</label>
+                        <input type="text" class="form-control" id="nama_pembeli" placeholder="Masukkan nama..."
+                            required style="border-radius: 20px; border-color: #ffc0cb;">
+                    </div>
 
-                <div class="d-flex justify-content-between">
-                    <h5 style="color: #ff3b91;">Total</h5>
-                    <h5 class="fw-bold" id="cart-total" style="color: #ff3b91;">Rp 0</h5>
-                </div>
+                    <h6 class="text-secondary fw-bold">Items</h6>
+                    <div id="cart-items-list" style="max-height: 250px; overflow-y: auto; min-height: 50px;">
+                        <p class="text-center text-muted" id="cart-empty-msg">Keranjang kosong</p>
+                    </div>
 
-                <div class="mb-3 mt-2">
-                    <label for="jumlah_bayar" class="form-label" style="color: #ff3b91;">Jumlah Bayar</label>
-                    <input type="number" class="form-control" id="jumlah_bayar" placeholder="Rp 0"
-                        style="border-radius: 20px; border-color: #ffc0cb;">
-                </div>
+                    <hr>
 
-                <div class="d-flex justify-content-between">
-                    <p style="color: #ff3b91;">Kembalian</p>
-                    <p class="fw-bold" id="kembalian" style="color: #ff3b91;">Rp 0</p>
-                </div>
+                    <div class="d-flex justify-content-between">
+                        <h5 style="color: #ff3b91;">Total</h5>
+                        <h5 class="fw-bold" id="cart-total" style="color: #ff3b91;">Rp 0</h5>
+                    </div>
 
-                <div style="position: absolute; bottom: 20px; left: 15px; right: 15px;">
+                    <div class="mb-3 mt-2">
+                        <label for="jumlah_bayar" class="form-label" style="color: #ff3b91;">Jumlah Bayar</label>
+                        <input type="number" class="form-control" id="jumlah_bayar" placeholder="Rp 0"
+                            style="border-radius: 20px; border-color: #ffc0cb;">
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <p style="color: #ff3b91;">Kembalian</p>
+                        <p class="fw-bold" id="kembalian" style="color: #ff3b91;">Rp 0</p>
+                    </div>
+
+                </div> {{-- Akhir dari container-fluid (bagian atas) --}}
+
+                {{-- Bagian bawah yang menempel (Footer Keranjang) --}}
+                <div style="flex-shrink: 0; padding: 1.5rem; border-top: 1px solid #eee;">
+
                     <h5 style="color: #ffb3d9; font-weight: bold; margin-bottom: 15px;">Metode Pembayaran</h5>
 
                     {{-- Menggunakan radio button agar mudah diambil valuenya --}}
@@ -373,90 +389,90 @@
                         style="width: 100%; padding: 10px; background-color: transparent; color: #ff3b91; border: none; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 10px;">
                         Batal
                     </button>
-                </div>
-            </div>
+                </div> {{-- Akhir dari bagian bawah --}}
+
+            </div> {{-- Akhir dari offcanvas-body --}}
         </div>
-    </div>
 
-    {{-- (MODIFIKASI) JavaScript Fungsional Total --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        {{-- (MODIFIKASI) JavaScript Fungsional Total --}}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
 
-            // --- STATE APLIKASI ---
-            let cart = []; // Keranjang belanja
+                // --- STATE APLIKASI ---
+                let cart = []; // Keranjang belanja
 
-            // --- AMBIL ELEMEN PENTING ---
-            const cartItemsList = document.getElementById('cart-items-list');
-            const cartEmptyMsg = document.getElementById('cart-empty-msg');
-            const cartTotalEl = document.getElementById('cart-total');
-            const btnProses = document.getElementById('btnProses');
-            const btnBatal = document.getElementById('btnBatal');
-            const namaPembeliEl = document.getElementById('nama_pembeli');
-            const jumlahBayarEl = document.getElementById('jumlah_bayar');
-            const kembalianEl = document.getElementById('kembalian');
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                // --- AMBIL ELEMEN PENTING ---
+                const cartItemsList = document.getElementById('cart-items-list');
+                const cartEmptyMsg = document.getElementById('cart-empty-msg');
+                const cartTotalEl = document.getElementById('cart-total');
+                const btnProses = document.getElementById('btnProses');
+                const btnBatal = document.getElementById('btnBatal');
+                const namaPembeliEl = document.getElementById('nama_pembeli');
+                const jumlahBayarEl = document.getElementById('jumlah_bayar');
+                const kembalianEl = document.getElementById('kembalian');
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            const kategoriItems = document.querySelectorAll('.kategori-item');
-            const productCards = document.querySelectorAll('.product-item');
+                const kategoriItems = document.querySelectorAll('.kategori-item');
+                const productCards = document.querySelectorAll('.product-item');
 
-            // --- FUNGSI ---
+                // --- FUNGSI ---
 
-            // (BARU) Fungsi untuk Filter Kategori
-            const filterKategori = (kategoriId) => {
-                productCards.forEach(card => {
-                    const cardKategoriId = card.getAttribute('data-kategori-id');
+                // (BARU) Fungsi untuk Filter Kategori
+                const filterKategori = (kategoriId) => {
+                    productCards.forEach(card => {
+                        const cardKategoriId = card.getAttribute('data-kategori-id');
 
-                    if (kategoriId === 'semua' || cardKategoriId === kategoriId) {
-                        card.style.display = 'block'; // Tampilkan
-                    } else {
-                        card.style.display = 'none'; // Sembunyikan
-                    }
-                });
-            };
-
-            // Fungsi untuk menambah item ke keranjang
-            const addItemToCart = (productData) => {
-                const productId = productData.id;
-                const productName = productData.nama;
-                const productPrice = parseFloat(productData.harga);
-                const productStok = parseInt(productData.stok);
-
-                if (productStok <= 0) {
-                    alert('Stok produk ' + productName + ' habis!');
-                    return;
-                }
-
-                const existingItem = cart.find(item => item.id == productId);
-
-                if (existingItem) {
-                    if (existingItem.jumlah < productStok) {
-                        existingItem.jumlah++;
-                    } else {
-                        alert('Stok produk ' + productName + ' tidak mencukupi!');
-                    }
-                } else {
-                    cart.push({
-                        id: productId,
-                        nama: productName,
-                        harga: productPrice,
-                        jumlah: 1,
-                        stok: productStok
+                        if (kategoriId === 'semua' || cardKategoriId === kategoriId) {
+                            card.style.display = 'block'; // Tampilkan
+                        } else {
+                            card.style.display = 'none'; // Sembunyikan
+                        }
                     });
-                }
-                renderCart();
-            };
+                };
 
-            // Fungsi untuk me-render tampilan keranjang
-            const renderCart = () => {
-                if (cart.length === 0) {
-                    cartItemsList.innerHTML = '';
-                    cartEmptyMsg.style.display = 'block';
-                } else {
-                    cartEmptyMsg.style.display = 'none';
-                    cartItemsList.innerHTML = '';
+                // Fungsi untuk menambah item ke keranjang
+                const addItemToCart = (productData) => {
+                    const productId = productData.id;
+                    const productName = productData.nama;
+                    const productPrice = parseFloat(productData.harga);
+                    const productStok = parseInt(productData.stok);
 
-                    cart.forEach(item => {
-                        const itemHtml = `
+                    if (productStok <= 0) {
+                        alert('Stok produk ' + productName + ' habis!');
+                        return;
+                    }
+
+                    const existingItem = cart.find(item => item.id == productId);
+
+                    if (existingItem) {
+                        if (existingItem.jumlah < productStok) {
+                            existingItem.jumlah++;
+                        } else {
+                            alert('Stok produk ' + productName + ' tidak mencukupi!');
+                        }
+                    } else {
+                        cart.push({
+                            id: productId,
+                            nama: productName,
+                            harga: productPrice,
+                            jumlah: 1,
+                            stok: productStok
+                        });
+                    }
+                    renderCart();
+                };
+
+                // Fungsi untuk me-render tampilan keranjang
+                const renderCart = () => {
+                    if (cart.length === 0) {
+                        cartItemsList.innerHTML = '';
+                        cartEmptyMsg.style.display = 'block';
+                    } else {
+                        cartEmptyMsg.style.display = 'none';
+                        cartItemsList.innerHTML = '';
+
+                        cart.forEach(item => {
+                            const itemHtml = `
                         <div class="d-flex justify-content-between align-items-center mb-2 cart-item">
                             <div>
                                 <h6 class="mb-0">${item.nama}</h6>
@@ -470,195 +486,195 @@
                             </div>
                         </div>
                     `;
-                        cartItemsList.innerHTML += itemHtml;
-                    });
-                }
-                updateTotals();
-            };
+                            cartItemsList.innerHTML += itemHtml;
+                        });
+                    }
+                    updateTotals();
+                };
 
-            // Fungsi untuk update total harga dan kembalian
-            const updateTotals = () => {
-                const totalHarga = cart.reduce((total, item) => total + (item.harga * item.jumlah), 0);
-                cartTotalEl.innerText = `Rp ${formatRupiah(totalHarga)}`;
+                // Fungsi untuk update total harga dan kembalian
+                const updateTotals = () => {
+                    const totalHarga = cart.reduce((total, item) => total + (item.harga * item.jumlah), 0);
+                    cartTotalEl.innerText = `Rp ${formatRupiah(totalHarga)}`;
 
-                const jumlahBayar = parseFloat(jumlahBayarEl.value) || 0;
-                const kembalian = jumlahBayar - totalHarga;
+                    const jumlahBayar = parseFloat(jumlahBayarEl.value) || 0;
+                    const kembalian = jumlahBayar - totalHarga;
 
-                if (kembalian >= 0) {
-                    kembalianEl.innerText = `Rp ${formatRupiah(kembalian)}`;
-                } else {
-                    kembalianEl.innerText = `-Rp ${formatRupiah(Math.abs(kembalian))}`;
-                }
-            };
-
-            // Fungsi untuk memproses transaksi
-            const processTransaction = async () => {
-                const namaPembeli = namaPembeliEl.value;
-                const metodePembayaran = document.querySelector('input[name="metode_pembayaran"]:checked')
-                    .value;
-                const totalHarga = cart.reduce((total, item) => total + (item.harga * item.jumlah), 0);
-                const jumlahBayar = parseFloat(jumlahBayarEl.value) || 0;
-
-                const items = cart.map(item => ({
-                    produk_id: item.id,
-                    jumlah: item.jumlah,
-                    harga: item.harga
-                }));
-
-                if (cart.length === 0) {
-                    alert('Keranjang masih kosong!');
-                    return;
-                }
-                if (namaPembeli.trim() === '') {
-                    alert('Nama Pembeli wajib diisi!');
-                    namaPembeliEl.focus();
-                    return;
-                }
-                if (jumlahBayar < totalHarga) {
-                    alert('Jumlah bayar kurang dari total harga!');
-                    jumlahBayarEl.focus();
-                    return;
-                }
-
-                if (!confirm('Proses transaksi ini?')) {
-                    return;
-                }
-
-                try {
-                    // Menggunakan $routePrefix dari Blade
-                    const response = await fetch("{{ route($routePrefix . '.transaksi.store') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            nama_pembeli: namaPembeli,
-                            metode_pembayaran: metodePembayaran,
-                            total_harga: totalHarga,
-                            jumlah_bayar: jumlahBayar,
-                            items: items
-                        })
-                    });
-
-                    const result = await response.json();
-
-                    if (response.ok) {
-
-                        // 1. Ambil kode transaksi dari response JSON
-                        const kodeTransaksi = result.kode_transaksi;
-
-                        // 2. Buat URL ke route cetak struk
-                        const strukUrl = `/cetak-struk/${kodeTransaksi}`;
-
-                        // 4. (MODIFIKASI) Redirect halaman ke URL struk
-                        window.location.href = strukUrl;
-
-                        // Kita tidak perlu memanggil resetTransaksi() lagi
-                        // karena halaman ini akan ditinggalkan.
+                    if (kembalian >= 0) {
+                        kembalianEl.innerText = `Rp ${formatRupiah(kembalian)}`;
                     } else {
+                        kembalianEl.innerText = `-Rp ${formatRupiah(Math.abs(kembalian))}`;
+                    }
+                };
 
-                        if (response.status === 422) {
-                            let errorMsg = 'Validasi Gagal:\n';
-                            for (const key in result.errors) {
-                                errorMsg += `${result.errors[key].join(', ')}\n`;
-                            }
-                            alert(errorMsg);
+                // Fungsi untuk memproses transaksi
+                const processTransaction = async () => {
+                    const namaPembeli = namaPembeliEl.value;
+                    const metodePembayaran = document.querySelector('input[name="metode_pembayaran"]:checked')
+                        .value;
+                    const totalHarga = cart.reduce((total, item) => total + (item.harga * item.jumlah), 0);
+                    const jumlahBayar = parseFloat(jumlahBayarEl.value) || 0;
+
+                    const items = cart.map(item => ({
+                        produk_id: item.id,
+                        jumlah: item.jumlah,
+                        harga: item.harga
+                    }));
+
+                    if (cart.length === 0) {
+                        alert('Keranjang masih kosong!');
+                        return;
+                    }
+                    if (namaPembeli.trim() === '') {
+                        alert('Nama Pembeli wajib diisi!');
+                        namaPembeliEl.focus();
+                        return;
+                    }
+                    if (jumlahBayar < totalHarga) {
+                        alert('Jumlah bayar kurang dari total harga!');
+                        jumlahBayarEl.focus();
+                        return;
+                    }
+
+                    if (!confirm('Proses transaksi ini?')) {
+                        return;
+                    }
+
+                    try {
+                        // Menggunakan $routePrefix dari Blade
+                        const response = await fetch("{{ route($routePrefix . '.transaksi.store') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                nama_pembeli: namaPembeli,
+                                metode_pembayaran: metodePembayaran,
+                                total_harga: totalHarga,
+                                jumlah_bayar: jumlahBayar,
+                                items: items
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+
+                            // 1. Ambil kode transaksi dari response JSON
+                            const kodeTransaksi = result.kode_transaksi;
+
+                            // 2. Buat URL ke route cetak struk
+                            const strukUrl = `/cetak-struk/${kodeTransaksi}`;
+
+                            // 4. (MODIFIKASI) Redirect halaman ke URL struk
+                            window.location.href = strukUrl;
+
+                            // Kita tidak perlu memanggil resetTransaksi() lagi
+                            // karena halaman ini akan ditinggalkan.
                         } else {
-                            alert('Error: ' + (result.error || 'Terjadi kesalahan di server'));
+
+                            if (response.status === 422) {
+                                let errorMsg = 'Validasi Gagal:\n';
+                                for (const key in result.errors) {
+                                    errorMsg += `${result.errors[key].join(', ')}\n`;
+                                }
+                                alert(errorMsg);
+                            } else {
+                                alert('Error: ' + (result.error || 'Terjadi kesalahan di server'));
+                            }
                         }
+                    } catch (error) {
+                        console.error('Fetch Error:', error);
+                        alert('Tidak dapat terhubung ke server.');
                     }
-                } catch (error) {
-                    console.error('Fetch Error:', error);
-                    alert('Tidak dapat terhubung ke server.');
-                }
-            };
+                };
 
-            // Fungsi untuk mereset transaksi
-            const resetTransaksi = () => {
-                cart = [];
-                namaPembeliEl.value = '';
-                jumlahBayarEl.value = '';
-                document.getElementById('metodeTunai').checked = true;
-                renderCart();
-                // Reload halaman untuk refresh stok produk
-                window.location.reload();
-            };
+                // Fungsi untuk mereset transaksi
+                const resetTransaksi = () => {
+                    cart = [];
+                    namaPembeliEl.value = '';
+                    jumlahBayarEl.value = '';
+                    document.getElementById('metodeTunai').checked = true;
+                    renderCart();
+                    // Reload halaman untuk refresh stok produk
+                    window.location.reload();
+                };
 
-            // Fungsi untuk menangani aksi di keranjang
-            const handleCartActions = (e) => {
-                const target = e.target;
-                const productId = target.closest('[data-id]').dataset.id;
-                if (!productId) return;
+                // Fungsi untuk menangani aksi di keranjang
+                const handleCartActions = (e) => {
+                    const target = e.target;
+                    const productId = target.closest('[data-id]').dataset.id;
+                    if (!productId) return;
 
-                const itemIndex = cart.findIndex(item => item.id == productId);
-                if (itemIndex === -1) return;
+                    const itemIndex = cart.findIndex(item => item.id == productId);
+                    if (itemIndex === -1) return;
 
-                const item = cart[itemIndex];
+                    const item = cart[itemIndex];
 
-                if (target.classList.contains('btn-qty-increase')) {
-                    if (item.jumlah < item.stok) {
-                        item.jumlah++;
-                    } else {
-                        alert('Stok tidak mencukupi!');
-                    }
-                } else if (target.classList.contains('btn-qty-decrease')) {
-                    item.jumlah--;
-                    if (item.jumlah === 0) {
+                    if (target.classList.contains('btn-qty-increase')) {
+                        if (item.jumlah < item.stok) {
+                            item.jumlah++;
+                        } else {
+                            alert('Stok tidak mencukupi!');
+                        }
+                    } else if (target.classList.contains('btn-qty-decrease')) {
+                        item.jumlah--;
+                        if (item.jumlah === 0) {
+                            cart.splice(itemIndex, 1);
+                        }
+                    } else if (target.classList.contains('btn-remove-item')) {
                         cart.splice(itemIndex, 1);
                     }
-                } else if (target.classList.contains('btn-remove-item')) {
-                    cart.splice(itemIndex, 1);
-                }
-                renderCart();
-            };
+                    renderCart();
+                };
 
-            const formatRupiah = (angka) => {
-                return new Intl.NumberFormat('id-ID').format(angka);
-            };
+                const formatRupiah = (angka) => {
+                    return new Intl.NumberFormat('id-ID').format(angka);
+                };
 
-            // --- EVENT LISTENERS ---
+                // --- EVENT LISTENERS ---
 
-            // (BARU) Listener untuk Kategori
-            kategoriItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    // Toggle active class
-                    kategoriItems.forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
+                // (BARU) Listener untuk Kategori
+                kategoriItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        // Toggle active class
+                        kategoriItems.forEach(i => i.classList.remove('active'));
+                        item.classList.add('active');
 
-                    // Filter
-                    const filterId = item.getAttribute('data-kategori-id');
-                    filterKategori(filterId);
+                        // Filter
+                        const filterId = item.getAttribute('data-kategori-id');
+                        filterKategori(filterId);
+                    });
                 });
+
+                // Listener untuk klik produk
+                document.querySelector('.menu-baju').addEventListener('click', (e) => {
+                    const productCard = e.target.closest('.product-item');
+                    if (productCard) {
+                        addItemToCart(productCard.dataset);
+                    }
+                });
+
+                // Listener untuk aksi di keranjang
+                cartItemsList.addEventListener('click', handleCartActions);
+
+                // Listener untuk update kembalian
+                jumlahBayarEl.addEventListener('input', updateTotals);
+
+                // Listener tombol Proses
+                btnProses.addEventListener('click', processTransaction);
+
+                // Listener tombol Batal
+                btnBatal.addEventListener('click', () => {
+                    if (confirm('Batalkan transaksi ini dan kosongkan keranjang?')) {
+                        resetTransaksi();
+                    }
+                });
+
             });
-
-            // Listener untuk klik produk
-            document.querySelector('.menu-baju').addEventListener('click', (e) => {
-                const productCard = e.target.closest('.product-item');
-                if (productCard) {
-                    addItemToCart(productCard.dataset);
-                }
-            });
-
-            // Listener untuk aksi di keranjang
-            cartItemsList.addEventListener('click', handleCartActions);
-
-            // Listener untuk update kembalian
-            jumlahBayarEl.addEventListener('input', updateTotals);
-
-            // Listener tombol Proses
-            btnProses.addEventListener('click', processTransaction);
-
-            // Listener tombol Batal
-            btnBatal.addEventListener('click', () => {
-                if (confirm('Batalkan transaksi ini dan kosongkan keranjang?')) {
-                    resetTransaksi();
-                }
-            });
-
-        });
-    </script>
+        </script>
 </body>
 
 </html>

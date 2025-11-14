@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <title>Login</title>
     <style>
         * {
@@ -18,7 +19,7 @@
             width: 100%;
             height: 100%;
             font-family: Arial, sans-serif;
-            overflow-x: hidden;
+            overflow-x: none;
         }
 
         /* Kotak pink di background */
@@ -61,7 +62,6 @@
 
         /* Card Login */
         .card {
-
             width: 400px;
             height: 500px;
             border-radius: 50px;
@@ -136,6 +136,34 @@
             color: rgb(128, 128, 128);
             font-style: italic;
         }
+
+        /* Style untuk toggle password */
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            margin-top: 20px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            user-select: none;
+            font-size: 20px;
+            color: #a0a0a0;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: #808080;
+        }
+
+        #password {
+            padding-right: 45px !important;
+        }
     </style>
 </head>
 
@@ -145,8 +173,6 @@
     <div class="kotak1"></div>
     <div class="kotak2"></div>
     <div class="kotak3"></div>
-
-
 
     <!-- Konten 2 Kolom -->
     <div class="container vh-100 d-flex align-items-center position-relative" style="z-index:4;">
@@ -171,9 +197,14 @@
                                         {{ $message }}
                                     </div>
                                 @enderror
-                                <input type="password" id="password"
-                                    class="form-control @error('password') is-invalid @enderror"
-                                    placeholder="Masukkan Password" name="password" required>
+
+                                <!-- Password wrapper dengan toggle icon -->
+                                <div class="password-wrapper">
+                                    <input type="password" id="password"
+                                        class="form-control @error('password') is-invalid @enderror"
+                                        placeholder="Masukkan Password" name="password" required>
+                                    <i class="bi bi-eye toggle-password" id="toggleIcon"></i>
+                                </div>
                                 @error('password')
                                     <div class="invalid-feedback">
                                         {{ $message }}
@@ -203,6 +234,29 @@
 
         </div>
     </div>
+
+    <!-- JavaScript untuk toggle password -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.querySelector('.toggle-password');
+            const passwordInput = document.querySelector('#password');
+            
+            togglePassword.addEventListener('click', function() {
+                // Toggle tipe input
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                // Toggle icon Bootstrap
+                if (type === 'password') {
+                    this.classList.remove('bi-eye-slash');
+                    this.classList.add('bi-eye');
+                } else {
+                    this.classList.remove('bi-eye');
+                    this.classList.add('bi-eye-slash');
+                }
+            });
+        });
+    </script>
 
 </body>
 
