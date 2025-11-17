@@ -7,19 +7,19 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Harap tunggu</title>
     <style>
-      
+       /* Container supaya loader + teks benar-benar di tengah layar */
             .loader-container {
             display: flex;
-            flex-direction: column;  
-            justify-content: center; 
-            align-items: center;      
-            gap: 15px;               
-            height: 100vh;           
-            width: 100vw;             
+            flex-direction: column;   /* arah vertikal: teks di atas, loader di bawah */
+            justify-content: center;  /* vertical centering */
+            align-items: center;      /* horizontal centering */
+            gap: 15px;                /* jarak antara teks dan loader */
+            height: 100vh;            /* full page height */
+            width: 100vw;             /* full page width */
             background: #f5f5f5;
             }
 
-            
+            /* Loader bulatan */
             .loader {
             display: flex;
             gap: 10px;
@@ -33,7 +33,7 @@
             animation: bounce 1s infinite ease-in-out;
             }
 
-           
+            /* Delay tiap lingkaran */
             .loader div:nth-child(1) { animation-delay: 0s; }
             .loader div:nth-child(2) { animation-delay: 0.2s; }
             .loader div:nth-child(3) { animation-delay: 0.4s; }
