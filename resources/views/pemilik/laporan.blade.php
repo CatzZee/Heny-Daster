@@ -100,7 +100,7 @@
     }
 
     th {
-      background-color: #f8a5c2;
+      background-color: #ff9cc7;
       color: #333;
       font-weight: bold;
     }
