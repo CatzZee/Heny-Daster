@@ -29,7 +29,7 @@
 
   /* Sidebar (navbar kecil kiri pink) */
   .sidebar {
-    background-color: #ffb6c1;
+    background-color: #ff9cc7;
     width: 60px;
     height: 100vh;
     position: fixed;

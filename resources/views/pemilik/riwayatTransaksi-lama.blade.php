@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Data Akun - Heny Daster</title>
+  <title>Riwayat</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-
   <style>
     body, html {
       height: 100%;
-      font-family: 'Poppins', sans-serif;
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
       background-color: #fff;
@@ -48,75 +47,74 @@
       width: 100%;
     }
 
+    
     .main-content {
       margin-left: 230px;
-      padding: 40px;
-      text-align: center;
+      padding: 20px;
     }
 
-    /* === Tampilan Data Akun === */
-    .owner {
-      text-align: center;
-      margin-bottom: 50px;
-    }
-
-    .owner img {
-      width: 140px;
-      height: 140px;
-      object-fit: cover;
-      border-radius: 50%;
-      margin-bottom: 10px;
-      border: 3px solid #ff9cc7;
-    }
-
-    .owner h3 {
-      margin: 0;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-
-    .team {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 50px;
-      margin-bottom: 40px;
-    }
-
-    .member {
-      text-align: center;
-    }
-
-    .member img {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 6px;
+    /* transaksi */
+    .transaction-card {
+      position: relative;
+      background-color: transparent;
+      border: 2px;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: 0.3s;
       border: 2px solid #ffb6c1;
     }
 
-    .member p {
-      margin: 0;
-      font-size: 15px;
-      font-weight: 500;
-    }
-
-    .add-btn {
-      background-color: #ff9cc7;
-      border: none;
-      border-radius: 50%;
-      width: 55px;
-      height: 55px;
-      font-size: 28px;
-      color: white;
-      cursor: pointer;
+    .transaction-card .card-body {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 15px 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       transition: 0.3s;
     }
 
-    .add-btn:hover {
-      background-color: #ff7fb3;
-      transform: scale(1.1);
+    .transaction-card .icon-box {
+      background-color: #ffb6c1;
+      color: white;
+      font-size: 22px;
+      font-weight: bold;
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .text-pink {
+      color: #ff69b4;
+    }
+
+    /* Hover state */
+    .transaction-card:hover .card-body {
+      background-color: #ffb6c1;
+      color: white;
+      transform: scale(1.02);
+    }
+
+    /* Sembunyikan isi saat hover */
+    .transaction-card:hover .card-body > * {
+      opacity: 0;
+    }
+
+    /* Ikon hapus muncul saat hover */
+    .transaction-card .delete-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 28px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .transaction-card:hover .delete-overlay {
+      opacity: 1;
     }
   </style>
 </head>
@@ -148,31 +146,26 @@
 
   <!-- Konten utama -->
   <div class="main-content">
-    <div class="owner">
-      <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Owner">
-      <h3>OWNER</h3>
-    </div>
+    <div class="card transaction-card mb-3">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <!-- Kiri -->
+        <div class="d-flex align-items-center">
+          <div class="icon-box me-3">$</div>
+          <div>
+            <strong>Transaksi Tunai Masuk</strong><br>
+            <small>21 Maret 2021 &nbsp;&nbsp; 09:10</small>
+          </div>
+        </div>
 
-    <div class="team">
-      <div class="member">
-        <img src="https://randomuser.me/api/portraits/men/35.jpg" alt="Admin Rudi">
-        <p>Admin Rudi</p>
+        <!-- Kanan -->
+        <div class="text-end text-pink fw-bold">
+          + Rp. 200.000
+        </div>
       </div>
-      <div class="member">
-        <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="Admin Zahra">
-        <p>Admin Zahra</p>
-      </div>
-      <div class="member">
-        <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="Kasir Rendi">
-        <p>Kasir Rendi</p>
-      </div>
-      <div class="member">
-        <img src="https://randomuser.me/api/portraits/women/46.jpg" alt="Kasir Naura">
-        <p>Kasir Naura</p>
-      </div>
-    </div>
 
-    <button class="add-btn">+</button>
+      <!-- Hover Icon -->
+      <div class="delete-overlay">X</div>
+    </div>
   </div>
 </body>
 </html>

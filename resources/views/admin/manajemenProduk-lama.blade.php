@@ -86,7 +86,7 @@
       width: 100%;
       max-width: 400px;
       padding: 12px 20px;
-      border: 2px solid #ff9cc7;
+      border: 2px solid #ffc0cb;
       border-radius: 25px;
       font-size: 14px;
     }

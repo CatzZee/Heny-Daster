@@ -61,7 +61,7 @@
       border-radius: 12px;
       overflow: hidden;
       transition: 0.3s;
-      border: 2px solid #ffb6c1;
+      border: 2px solid #ff69b4;
     }
 
     .transaction-card .card-body {
@@ -73,7 +73,7 @@
     }
 
     .transaction-card .icon-box {
-      background-color: #ffb6c1;
+      background-color: #ff9cc7;
       color: white;
       font-size: 22px;
       font-weight: bold;
@@ -90,7 +90,7 @@
 
     /* Hover state */
     .transaction-card:hover .card-body {
-      background-color: #ffb6c1;
+      background-color: #ff69b4;
       color: white;
       transform: scale(1.02);
     }
