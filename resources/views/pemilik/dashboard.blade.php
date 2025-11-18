@@ -1,680 +1,328 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Dashboard</title>
+@section('title', 'Kasir - Heny Daster')
 
-    {{-- (MODIFIKASI) Menggunakan CSS Asli Kamu --}}
-    <style>
-        body,
-        html {
-            height: 100%;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #fff;
-            overflow: hidden;
-            /* Mencegah body scroll */
-        }
+@push('styles')
+<style>
+    /* --- 1. STRUKTUR POSISI MUTLAK (ANTI-TURUN) --- */
 
-        /* Sidebar Kiri */
-        .sidebar {
-            background-color: #ff9cc7;
-            height: 100vh;
-            text-align: center;
-            width: 230px;
-            position: fixed;
-            top: 0;
-            left: 0;
-        }
+    /* Reset Container Utama dari app.blade.php */
+    .main-content {
+        padding: 0 !important;
+        margin-right: 0 !important;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden !important; /* Matikan scroll body utama */
+    }
 
-        .sidebar .navbar .navbar-brand {
-            padding: 60px 20px;
-            font-weight: bold;
-            display: block;
-            color: white;
-        }
+    /* A. KERANJANG (DIPAKU DI KANAN) */
+    .cart-fixed-sidebar {
+        position: fixed;       /* KUNCI: Lepas dari aliran dokumen */
+        top: 0;
+        right: 0;
+        bottom: 0;             /* Full tinggi dari atas ke bawah */
+        width: 360px;          /* Lebar Tetap */
+        background: #ffffff;
+        z-index: 1050;         /* Pastikan di layer paling atas */
+        border-left: 1px solid #e0e0e0;
+        box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+    }
 
-        .sidebar .nav-link {
-            color: white;
-            font-weight: bold;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+    /* B. PRODUK (MENYESUAIKAN SISA RUANG) */
+    .product-scroll-area {
+        /* Memberi jarak kanan supaya tidak tertutup keranjang */
+        margin-right: 360px !important; 
+        
+        height: 100vh;        /* Full Tinggi */
+        overflow-y: auto;     /* Scrollbar sendiri */
+        padding: 20px;
+        background-color: #f4f6f9;
+        transition: all 0.3s ease;
+    }
 
-        .sidebar .nav-link.active,
-        .sidebar .nav-link:hover {
-            background-color: #ff69b4;
-            border-radius: 15px;
-            width: 100%;
-        }
+    /* --- 2. DESAIN CARD (OLSERA STYLE) --- */
+    .grid-produk {
+        display: grid;
+        /* Auto-fill: Isi kolom sebanyak mungkin, minimal lebar 160px */
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+        gap: 15px;
+        padding-bottom: 100px; /* Jarak aman scroll bawah */
+    }
 
-        /* Konten Tengah */
-        .main-content {
-            margin-left: 230px;
-            margin-right: 270px;
-            /* (MODIFIKASI) Pastikan ini cukup untuk sidebar kanan */
-            padding: 20px;
-            height: 100vh;
-            /* (BARU) */
-            overflow-y: auto;
-            /* (BARU) Konten tengah bisa di-scroll */
-        }
+    .card-pos {
+        background: #fff; border-radius: 10px; border: 1px solid #eee;
+        overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s;
+        display: flex; flex-direction: column; height: 100%; position: relative;
+    }
+    .card-pos:hover { transform: translateY(-4px); border-color: #ffb3d9; box-shadow: 0 5px 15px rgba(255, 105, 180, 0.15); }
+    
+    .img-wrapper { height: 140px; width: 100%; background: #f9f9f9; position: relative; }
+    .img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    .badge-stok { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); color: white; font-size: 10px; padding: 2px 8px; border-radius: 4px; backdrop-filter: blur(2px); font-weight: 600; }
+    
+    .info-wrapper { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .txt-nama { font-size: 13px; font-weight: 600; color: #333; line-height: 1.4; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .txt-harga { font-size: 14px; font-weight: 800; color: #ff3b91; }
 
-        /* Kategori scroll horizontal */
-        .kategori-container {
-            display: flex;
-            overflow-x: auto;
-            white-space: nowrap;
-            padding: 10px;
-            scroll-behavior: smooth;
-            border-radius: 10px;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
+    /* --- 3. KOMPONEN LAIN --- */
+    /* Kategori */
+    .cat-wrapper { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; margin-bottom: 20px; }
+    .cat-btn { padding: 8px 20px; background: white; border: 1px solid #ddd; border-radius: 20px; font-size: 13px; font-weight: 600; color: #666; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+    .cat-btn:hover, .cat-btn.active { background: #ff3b91; color: white; border-color: #ff3b91; }
 
-        .kategori-container::-webkit-scrollbar {
-            display: none;
-        }
+    /* Keranjang Styling */
+    .cart-head { padding: 15px 20px; border-bottom: 1px solid #f0f0f0; background: white; flex-shrink: 0; }
+    .cart-main { flex: 1; overflow-y: auto; padding: 15px 20px; background: white; }
+    .cart-foot { padding: 20px; background: #fafafa; border-top: 1px solid #eee; flex-shrink: 0; }
 
-        .kategori-item {
-            display: inline-block;
-            padding: 40px 70px;
-            margin: 0 8px;
-            background-color: #ffffff;
-            border: 3px solid #ffc0cb;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 20px;
-            color: #ffc0cb;
-            user-select: none;
-        }
+    .list-item { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #eee; }
+    .qty-box { display: flex; align-items: center; background: #f5f5f5; border-radius: 6px; padding: 2px; }
+    .btn-pm { width: 22px; height: 22px; background: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; color: #333; display: flex; align-items: center; justify-content: center; }
+    .btn-pm:hover { background: #ff3b91; color: white; }
+    .qty-num { width: 24px; text-align: center; font-size: 13px; font-weight: bold; }
 
-        .kategori-item:hover {
-            background-color: #ffc0cb;
-            color: white;
-            border-color: #ffc0cb;
-        }
+    /* Scrollbar */
+    .product-scroll-area::-webkit-scrollbar, .cart-main::-webkit-scrollbar { width: 6px; }
+    .product-scroll-area::-webkit-scrollbar-thumb, .cart-main::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
+</style>
+@endpush
 
-        .kategori-item.active {
-            background-color: #ff69b4;
-            color: white;
-            border-color: #ff69b4;
-        }
+@section('content')
 
-        /* Grid Produk */
-        .menu-baju {
-            margin-left: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            /* (MODIFIKASI) Responsif */
-            gap: 40px 20px;
-            justify-items: center;
-            margin-top: 20px;
-        }
-
-        .card-baju {
-            position: relative;
-            width: 150px;
-            height: 180px;
-            background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            padding: 10px;
-            transition: transform 0.3s ease;
-            overflow: visible;
-            margin-bottom: 30px;
-            cursor: pointer;
-            /* (BARU) Menandakan bisa diklik */
-        }
-
-        .card-baju:hover {
-            transform: translateY(-5px);
-        }
-
-        .card-baju img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 15px;
-        }
-
-        .harga {
-            position: absolute;
-            bottom: -5px;
-            left: -8px;
-            background-color: #ff9cc7;
-            color: white;
-            font-weight: bold;
-            border-radius: 20px;
-            padding: 6px 14px;
-            font-size: 15px;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-            transform: scale(1.1);
-            z-index: 10;
-        }
-
-        .nama-baju {
-            position: absolute;
-            bottom: -45px;
-            left: 0;
-            right: 0;
-            font-weight: bold;
-            color: #ff3b91;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        /* Sidebar Kanan (Keranjang) */
-        .offcanvas-end {
-            background-color: #fff;
-            border-left: 2px solid #ffc0cb;
-            width: 270px;
-            /* (MODIFIKASI) Sesuaikan dengan margin-right .main-content */
-        }
-
-        /* Tombol Logout */
-        .sidebar-footer {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            right: 0;
-            padding: 0 20px;
-        }
-
-        .logout-button {
-            display: block;
-            width: 100%;
-            padding: 12px 15px;
-            background-color: #ff69b4;
-            color: white;
-            font-weight: bold;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-
-        .logout-button:hover {
-            background-color: #d9538f;
-        }
-
-        /* (BARU) Style untuk item di keranjang */
-        .cart-item {
-            font-size: 0.9rem;
-        }
-
-        .cart-item-controls {
-            display: flex;
-            align-items: center;
-        }
-
-        .cart-item-controls button {
-            width: 25px;
-            height: 25px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-        }
-
-        .cart-item-controls .btn-remove {
-            width: 25px;
-            height: 25px;
-            padding: 0;
-            font-size: 0.8rem;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="sidebar">
-        <nav class="navbar mb-3">
-            <a class="navbar-brand" href="#">Heny Daster</a>
-        </nav>
-        <ul class="nav flex-column" id="menu">
-            <li class="nav-item">
-                <a class="nav-link active" href="#">Katalog</a>
-            </li>
-            <li class="nav-item">
-                {{-- (MODIFIKASI) Menggunakan $routePrefix dari controller --}}
-                <a class="nav-link" href="{{ route($routePrefix . '.produk.index') }}">Stok Barang</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Riwayat Transaksi</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route($routePrefix . '.akun.index') }}">Data Akun</a>
-            </li>
-        </ul>
-
-        <div class="sidebar-footer">
-            <form action="{{ route('logout') }}" method="POST" style="margin: 0; padding: 0;">
-                @csrf
-                <button type="submit" class="logout-button">
-                    Logout
-                </button>
-            </form>
+    {{-- 1. AREA PRODUK (Fluid / Mengisi Sisa Ruang) --}}
+    <div class="product-scroll-area">
+        
+        {{-- Header --}}
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h5 class="fw-bold m-0 text-dark">Katalog Produk</h5>
+                <small class="text-muted">Pilih item untuk ditambahkan</small>
+            </div>
+            <div class="input-group input-group-sm w-auto" style="width: 220px;">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control border-start-0" placeholder="Cari produk..." style="box-shadow: none;">
+            </div>
         </div>
-    </div>
 
-    <div class="main-content">
-
-        <div class="kategori-container mb-4">
-            <div class="kategori-item active" data-kategori-id="semua">Semua</div>
+        {{-- Kategori --}}
+        <div class="cat-wrapper">
+            <button class="cat-btn active" data-kategori-id="semua">Semua</button>
             @foreach ($kategoris as $kategori)
-                <div class="kategori-item" data-kategori-id="{{ $kategori->id }}">{{ $kategori->nama_kategori }}</div>
+                <button class="cat-btn" data-kategori-id="{{ $kategori->id }}">{{ $kategori->nama_kategori }}</button>
             @endforeach
         </div>
 
-        <div class="menu-baju mt-4">
-
-            {{-- (KEMBALIKAN) Loop $produks biasa --}}
+        {{-- Grid --}}
+        <div class="grid-produk">
             @forelse ($produks as $produk)
-                {{-- (BARU) Sesuai idemu: buat nama tampilan dengan ukuran --}}
                 @php
-                    $nama_display = $produk->nama_produk;
-                    if ($produk->ukuran_baju) {
-                        $nama_display .= ' (' . $produk->ukuran_baju . ')';
-                    }
+                    $nama_display = $produk->nama_produk . ($produk->ukuran_baju ? ' (' . $produk->ukuran_baju . ')' : '');
                 @endphp
-
-                <div class="card-baju product-item" {{-- (KEMBALIKAN) class 'product-item' --}} data-kategori-id="{{ $produk->id_kategori }}"
-                    data-id="{{ $produk->id }}" data-nama="{{ $nama_display }}" {{-- (PENTING) Data nama sekarang + ukuran --}}
-                    data-harga="{{ $produk->harga_produk }}" data-stok="{{ $produk->stok_produk }}"
-                    {{-- (HAPUS) data-bs-toggle dan data-bs-target dihapus --}}>
-
-                    <img src="{{ $produk->path_gambar ? Storage::url($produk->path_gambar) : 'https://via.placeholder.com/200' }}"
-                        alt="{{ $nama_display }}">
-
-                    <div class="harga">{{ round($produk->harga_produk / 1000) }}K</div>
-
-                    {{-- (PENTING) Tampilkan nama dengan ukuran --}}
-                    <p class="nama-baju">{{ $nama_display }}</p>
+                
+                <div class="card-pos product-item" 
+                     data-kategori-id="{{ $produk->id_kategori }}"
+                     data-id="{{ $produk->id }}" 
+                     data-nama="{{ $nama_display }}"
+                     data-harga="{{ $produk->harga_produk }}" 
+                     data-stok="{{ $produk->stok_produk }}">
+                     
+                     <div class="img-wrapper">
+                         <img src="{{ $produk->path_gambar ? Storage::url($produk->path_gambar) : 'https://via.placeholder.com/200x200?text=Img' }}" loading="lazy">
+                         <span class="badge-stok">Stok: {{ $produk->stok_produk }}</span>
+                     </div>
+                     <div class="info-wrapper">
+                         <div class="txt-nama" title="{{ $nama_display }}">{{ $nama_display }}</div>
+                         <div class="d-flex justify-content-between align-items-center">
+                            <div class="txt-harga">{{ 'Rp ' . number_format($produk->harga_produk, 0, ',', '.') }}</div>
+                            <i class="bi bi-plus-circle-fill text-danger fs-5 opacity-50"></i>
+                         </div>
+                     </div>
                 </div>
             @empty
-                <div style="grid-column: 1 / -1; text-align: center; color: #ff3b91; padding: 50px;">
-                    <h3>Oops!</h3>
-                    <p>Belum ada produk yang tersedia.</p>
+                <div class="col-12 text-center py-5 text-muted" style="grid-column: 1/-1;">
+                    <i class="bi bi-box2 fs-1 mb-2 d-block"></i> Produk Kosong
                 </div>
             @endforelse
         </div>
     </div>
 
-    {{-- (PERBAIKAN) Ganti seluruh blok .offcanvas Anda dengan ini --}}
-    <div class="offcanvas offcanvas-end show" id="offcanvasNavbar" tabindex="-1" aria-labelledby="offcanvasNavbarLabel"
-        style="visibility: visible; position: fixed;">
-        <div class="offcanvas-header">
-            <h4 style="color: #ffb3d9; font-weight: bold;">Keranjang</h4>
+
+    {{-- 2. AREA KERANJANG (FIXED POSITION / DIPAKU) --}}
+    <div class="cart-fixed-sidebar">
+        
+        {{-- Cart Header --}}
+        <div class="cart-head d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold m-0 d-flex align-items-center gap-2">
+                <i class="bi bi-cart4 text-danger fs-5"></i> Pesanan
+            </h6>
+            <span class="badge bg-danger rounded-pill" id="cart-count">0</span>
         </div>
 
-        {{-- (PERUBAHAN) Menggunakan flexbox untuk layout --}}
-        {{-- (PERBAIKAN) Ganti seluruh blok .offcanvas Anda dengan ini --}}
-        <div class="offcanvas offcanvas-end show" id="offcanvasNavbar" tabindex="-1"
-            aria-labelledby="offcanvasNavbarLabel" style="visibility: visible; position: fixed;">
-            <div class="offcanvas-header">
-                <h4 style="color: #ffb3d9; font-weight: bold;">Keranjang</h4>
+        {{-- Cart Body --}}
+        <div class="cart-main">
+            <div class="mb-3">
+                <input type="text" class="form-control form-control-sm" id="nama_pembeli" placeholder="Nama Pelanggan..." style="border-radius: 8px;">
+            </div>
+            
+            <div id="cart-list">
+                <div class="text-center py-5" id="empty-state">
+                    <i class="bi bi-bag-x fs-1 text-secondary opacity-25 mb-2 d-block"></i>
+                    <small class="text-muted">Keranjang kosong</small>
+                </div>
+            </div>
+        </div>
+
+        {{-- Cart Footer --}}
+        <div class="cart-foot">
+            <div class="d-flex justify-content-between mb-2 align-items-center">
+                <small class="text-muted fw-bold">Total</small>
+                <h5 class="fw-bold text-dark m-0" id="txt-total">Rp 0</h5>
+            </div>
+            
+            <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text bg-white">Rp</span>
+                <input type="number" class="form-control fw-bold" id="input-bayar" placeholder="0">
             </div>
 
-            {{-- (PERUBAHAN) Menggunakan flexbox untuk layout --}}
-            <div class="offcanvas-body" style="display: flex; flex-direction: column; padding: 0;">
+            <div class="d-flex justify-content-between mb-3">
+                <small class="text-muted">Kembali</small>
+                <small class="fw-bold" id="txt-kembali">Rp 0</small>
+            </div>
 
-                {{-- Bagian atas yang bisa scroll --}}
-                <div class="container-fluid" style="flex-grow: 1; overflow-y: auto; padding: 1.5rem;">
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <input type="radio" class="btn-check" name="metode" id="tunai" value="Tunai" checked>
+                    <label class="btn btn-outline-danger w-100 btn-sm" for="tunai">Tunai</label>
+                </div>
+                <div class="col-6">
+                    <input type="radio" class="btn-check" name="metode" id="qris" value="Qris">
+                    <label class="btn btn-outline-danger w-100 btn-sm" for="qris">QRIS</label>
+                </div>
+            </div>
 
-                    <div class="mb-3">
-                        <label for="nama_pembeli" class="form-label" style="color: #ff3b91;">Nama Pembeli</label>
-                        <input type="text" class="form-control" id="nama_pembeli" placeholder="Masukkan nama..."
-                            required style="border-radius: 20px; border-color: #ffc0cb;">
-                    </div>
-
-                    <h6 class="text-secondary fw-bold">Items</h6>
-                    <div id="cart-items-list" style="max-height: 250px; overflow-y: auto; min-height: 50px;">
-                        <p class="text-center text-muted" id="cart-empty-msg">Keranjang kosong</p>
-                    </div>
-
-                    <hr>
-
-                    <div class="d-flex justify-content-between">
-                        <h5 style="color: #ff3b91;">Total</h5>
-                        <h5 class="fw-bold" id="cart-total" style="color: #ff3b91;">Rp 0</h5>
-                    </div>
-
-                    <div class="mb-3 mt-2">
-                        <label for="jumlah_bayar" class="form-label" style="color: #ff3b91;">Jumlah Bayar</label>
-                        <input type="number" class="form-control" id="jumlah_bayar" placeholder="Rp 0"
-                            style="border-radius: 20px; border-color: #ffc0cb;">
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <p style="color: #ff3b91;">Kembalian</p>
-                        <p class="fw-bold" id="kembalian" style="color: #ff3b91;">Rp 0</p>
-                    </div>
-
-                </div> {{-- Akhir dari container-fluid (bagian atas) --}}
-
-                {{-- Bagian bawah yang menempel (Footer Keranjang) --}}
-                <div style="flex-shrink: 0; padding: 1.5rem; border-top: 1px solid #eee;">
-
-                    <h5 style="color: #ffb3d9; font-weight: bold; margin-bottom: 15px;">Metode Pembayaran</h5>
-
-                    {{-- Menggunakan radio button agar mudah diambil valuenya --}}
-                    <div class="btn-group w-100 mb-3" role="group">
-                        <input type="radio" class="btn-check" name="metode_pembayaran" id="metodeTunai"
-                            value="Tunai" autocomplete="off" checked>
-                        <label class="btn btn-outline-danger" for="metodeTunai"
-                            style="border-color: #ffc0cb; color: #ff3b91;">Tunai</label>
-
-                        <input type="radio" class="btn-check" name="metode_pembayaran" id="metodeQris"
-                            value="Qris" autocomplete="off">
-                        <label class="btn btn-outline-danger" for="metodeQris"
-                            style="border-color: #ffc0cb; color: #ff3b91;">Qris</label>
-                    </div>
-
-                    <button id="btnProses"
-                        style="width: 100%; padding: 15px; background-color: #ffb3d9; color: white; border: none; border-radius: 25px; font-weight: bold; font-size: 16px; cursor: pointer; transition: all 0.3s;">
-                        Proses
-                    </button>
-                    <button id="btnBatal"
-                        style="width: 100%; padding: 10px; background-color: transparent; color: #ff3b91; border: none; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 10px;">
-                        Batal
-                    </button>
-                </div> {{-- Akhir dari bagian bawah --}}
-
-            </div> {{-- Akhir dari offcanvas-body --}}
+            <div class="d-grid gap-2">
+                <button id="btn-bayar" class="btn btn-danger fw-bold shadow-sm py-2">BAYAR</button>
+                <button id="btn-reset" class="btn btn-light btn-sm text-secondary">Reset</button>
+            </div>
         </div>
+    </div>
 
-        {{-- (MODIFIKASI) JavaScript Fungsional Total --}}
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
+@endsection
 
-                // --- STATE APLIKASI ---
-                let cart = []; // Keranjang belanja
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- VARIABEL & SETUP ---
+        let cart = [];
+        const cartListEl = document.getElementById('cart-list');
+        const emptyStateEl = document.getElementById('empty-state');
+        const totalEl = document.getElementById('txt-total');
+        const kembaliEl = document.getElementById('txt-kembali');
+        const inputBayar = document.getElementById('input-bayar');
+        const inputNama = document.getElementById('nama_pembeli');
+        const btnBayar = document.getElementById('btn-bayar');
+        const cartCount = document.getElementById('cart-count');
+        const productItems = document.querySelectorAll('.product-item');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const routeStore = "{{ route($routePrefix . '.transaksi.store') }}";
 
-                // --- AMBIL ELEMEN PENTING ---
-                const cartItemsList = document.getElementById('cart-items-list');
-                const cartEmptyMsg = document.getElementById('cart-empty-msg');
-                const cartTotalEl = document.getElementById('cart-total');
-                const btnProses = document.getElementById('btnProses');
-                const btnBatal = document.getElementById('btnBatal');
-                const namaPembeliEl = document.getElementById('nama_pembeli');
-                const jumlahBayarEl = document.getElementById('jumlah_bayar');
-                const kembalianEl = document.getElementById('kembalian');
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const fmtRp = (n) => new Intl.NumberFormat('id-ID').format(n);
 
-                const kategoriItems = document.querySelectorAll('.kategori-item');
-                const productCards = document.querySelectorAll('.product-item');
-
-                // --- FUNGSI ---
-
-                // (BARU) Fungsi untuk Filter Kategori
-                const filterKategori = (kategoriId) => {
-                    productCards.forEach(card => {
-                        const cardKategoriId = card.getAttribute('data-kategori-id');
-
-                        if (kategoriId === 'semua' || cardKategoriId === kategoriId) {
-                            card.style.display = 'block'; // Tampilkan
-                        } else {
-                            card.style.display = 'none'; // Sembunyikan
-                        }
-                    });
-                };
-
-                // Fungsi untuk menambah item ke keranjang
-                const addItemToCart = (productData) => {
-                    const productId = productData.id;
-                    const productName = productData.nama;
-                    const productPrice = parseFloat(productData.harga);
-                    const productStok = parseInt(productData.stok);
-
-                    if (productStok <= 0) {
-                        alert('Stok produk ' + productName + ' habis!');
-                        return;
-                    }
-
-                    const existingItem = cart.find(item => item.id == productId);
-
-                    if (existingItem) {
-                        if (existingItem.jumlah < productStok) {
-                            existingItem.jumlah++;
-                        } else {
-                            alert('Stok produk ' + productName + ' tidak mencukupi!');
-                        }
-                    } else {
-                        cart.push({
-                            id: productId,
-                            nama: productName,
-                            harga: productPrice,
-                            jumlah: 1,
-                            stok: productStok
-                        });
-                    }
-                    renderCart();
-                };
-
-                // Fungsi untuk me-render tampilan keranjang
-                const renderCart = () => {
-                    if (cart.length === 0) {
-                        cartItemsList.innerHTML = '';
-                        cartEmptyMsg.style.display = 'block';
-                    } else {
-                        cartEmptyMsg.style.display = 'none';
-                        cartItemsList.innerHTML = '';
-
-                        cart.forEach(item => {
-                            const itemHtml = `
-                        <div class="d-flex justify-content-between align-items-center mb-2 cart-item">
-                            <div>
-                                <h6 class="mb-0">${item.nama}</h6>
-                                <small class="text-muted">Rp ${formatRupiah(item.harga)}</small>
-                            </div>
-                            <div class="cart-item-controls">
-                                <button class="btn btn-sm btn-outline-danger btn-qty-decrease" data-id="${item.id}">-</button>
-                                <span class="mx-2">${item.jumlah}</span>
-                                <button class="btn btn-sm btn-outline-danger btn-qty-increase" data-id="${item.id}">+</button>
-                                <button class="btn btn-sm btn-danger ms-2 btn-remove-item" data-id="${item.id}">X</button>
-                            </div>
+        // --- RENDER UI ---
+        const render = () => {
+            if(cart.length === 0) {
+                cartListEl.innerHTML = ''; emptyStateEl.style.display = 'block'; cartCount.innerText = '0';
+            } else {
+                emptyStateEl.style.display = 'none'; cartListEl.innerHTML = ''; cartCount.innerText = cart.length;
+                cart.forEach(item => {
+                    cartListEl.innerHTML += `
+                    <div class="list-item">
+                        <div style="flex:1; padding-right:10px;">
+                            <div style="font-weight:600; font-size:13px; color:#333; margin-bottom:2px;">${item.nama}</div>
+                            <div style="font-size:11px; color:#888;">Rp ${fmtRp(item.harga)} x ${item.jumlah}</div>
                         </div>
-                    `;
-                            cartItemsList.innerHTML += itemHtml;
-                        });
-                    }
-                    updateTotals();
-                };
-
-                // Fungsi untuk update total harga dan kembalian
-                const updateTotals = () => {
-                    const totalHarga = cart.reduce((total, item) => total + (item.harga * item.jumlah), 0);
-                    cartTotalEl.innerText = `Rp ${formatRupiah(totalHarga)}`;
-
-                    const jumlahBayar = parseFloat(jumlahBayarEl.value) || 0;
-                    const kembalian = jumlahBayar - totalHarga;
-
-                    if (kembalian >= 0) {
-                        kembalianEl.innerText = `Rp ${formatRupiah(kembalian)}`;
-                    } else {
-                        kembalianEl.innerText = `-Rp ${formatRupiah(Math.abs(kembalian))}`;
-                    }
-                };
-
-                // Fungsi untuk memproses transaksi
-                const processTransaction = async () => {
-                    const namaPembeli = namaPembeliEl.value;
-                    const metodePembayaran = document.querySelector('input[name="metode_pembayaran"]:checked')
-                        .value;
-                    const totalHarga = cart.reduce((total, item) => total + (item.harga * item.jumlah), 0);
-                    const jumlahBayar = parseFloat(jumlahBayarEl.value) || 0;
-
-                    const items = cart.map(item => ({
-                        produk_id: item.id,
-                        jumlah: item.jumlah,
-                        harga: item.harga
-                    }));
-
-                    if (cart.length === 0) {
-                        alert('Keranjang masih kosong!');
-                        return;
-                    }
-                    if (namaPembeli.trim() === '') {
-                        alert('Nama Pembeli wajib diisi!');
-                        namaPembeliEl.focus();
-                        return;
-                    }
-                    if (jumlahBayar < totalHarga) {
-                        alert('Jumlah bayar kurang dari total harga!');
-                        jumlahBayarEl.focus();
-                        return;
-                    }
-
-                    if (!confirm('Proses transaksi ini?')) {
-                        return;
-                    }
-
-                    try {
-                        // Menggunakan $routePrefix dari Blade
-                        const response = await fetch("{{ route($routePrefix . '.transaksi.store') }}", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                nama_pembeli: namaPembeli,
-                                metode_pembayaran: metodePembayaran,
-                                total_harga: totalHarga,
-                                jumlah_bayar: jumlahBayar,
-                                items: items
-                            })
-                        });
-
-                        const result = await response.json();
-
-                        if (response.ok) {
-
-                            // 1. Ambil kode transaksi dari response JSON
-                            const kodeTransaksi = result.kode_transaksi;
-
-                            // 2. Buat URL ke route cetak struk
-                            const strukUrl = `/cetak-struk/${kodeTransaksi}`;
-
-                            // 4. (MODIFIKASI) Redirect halaman ke URL struk
-                            window.location.href = strukUrl;
-
-                            // Kita tidak perlu memanggil resetTransaksi() lagi
-                            // karena halaman ini akan ditinggalkan.
-                        } else {
-
-                            if (response.status === 422) {
-                                let errorMsg = 'Validasi Gagal:\n';
-                                for (const key in result.errors) {
-                                    errorMsg += `${result.errors[key].join(', ')}\n`;
-                                }
-                                alert(errorMsg);
-                            } else {
-                                alert('Error: ' + (result.error || 'Terjadi kesalahan di server'));
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Fetch Error:', error);
-                        alert('Tidak dapat terhubung ke server.');
-                    }
-                };
-
-                // Fungsi untuk mereset transaksi
-                const resetTransaksi = () => {
-                    cart = [];
-                    namaPembeliEl.value = '';
-                    jumlahBayarEl.value = '';
-                    document.getElementById('metodeTunai').checked = true;
-                    renderCart();
-                    // Reload halaman untuk refresh stok produk
-                    window.location.reload();
-                };
-
-                // Fungsi untuk menangani aksi di keranjang
-                const handleCartActions = (e) => {
-                    const target = e.target;
-                    const productId = target.closest('[data-id]').dataset.id;
-                    if (!productId) return;
-
-                    const itemIndex = cart.findIndex(item => item.id == productId);
-                    if (itemIndex === -1) return;
-
-                    const item = cart[itemIndex];
-
-                    if (target.classList.contains('btn-qty-increase')) {
-                        if (item.jumlah < item.stok) {
-                            item.jumlah++;
-                        } else {
-                            alert('Stok tidak mencukupi!');
-                        }
-                    } else if (target.classList.contains('btn-qty-decrease')) {
-                        item.jumlah--;
-                        if (item.jumlah === 0) {
-                            cart.splice(itemIndex, 1);
-                        }
-                    } else if (target.classList.contains('btn-remove-item')) {
-                        cart.splice(itemIndex, 1);
-                    }
-                    renderCart();
-                };
-
-                const formatRupiah = (angka) => {
-                    return new Intl.NumberFormat('id-ID').format(angka);
-                };
-
-                // --- EVENT LISTENERS ---
-
-                // (BARU) Listener untuk Kategori
-                kategoriItems.forEach(item => {
-                    item.addEventListener('click', () => {
-                        // Toggle active class
-                        kategoriItems.forEach(i => i.classList.remove('active'));
-                        item.classList.add('active');
-
-                        // Filter
-                        const filterId = item.getAttribute('data-kategori-id');
-                        filterKategori(filterId);
-                    });
+                        <div class="d-flex align-items-center">
+                            <div class="qty-box me-2">
+                                <button class="btn-pm btn-dec" data-id="${item.id}">-</button>
+                                <div class="qty-num">${item.jumlah}</div>
+                                <button class="btn-pm btn-inc" data-id="${item.id}">+</button>
+                            </div>
+                            <button class="btn btn-link text-danger p-0 btn-del" data-id="${item.id}"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>`;
                 });
+            }
+            calc();
+        };
 
-                // Listener untuk klik produk
-                document.querySelector('.menu-baju').addEventListener('click', (e) => {
-                    const productCard = e.target.closest('.product-item');
-                    if (productCard) {
-                        addItemToCart(productCard.dataset);
-                    }
+        const calc = () => {
+            const total = cart.reduce((sum, i) => sum + (i.harga * i.jumlah), 0);
+            const bayar = parseFloat(inputBayar.value) || 0;
+            const kembali = bayar - total;
+            totalEl.innerText = 'Rp ' + fmtRp(total);
+            if(bayar > 0) {
+                kembaliEl.innerText = kembali >= 0 ? 'Rp ' + fmtRp(kembali) : '-Rp ' + fmtRp(Math.abs(kembali));
+                kembaliEl.className = kembali >= 0 ? 'fw-bold text-success' : 'fw-bold text-danger';
+            } else {
+                kembaliEl.innerText = 'Rp 0'; kembaliEl.className = 'fw-bold';
+            }
+        };
+
+        const add = (dataset) => {
+            const id = dataset.id; const stok = parseInt(dataset.stok);
+            if(stok <= 0) return alert('Stok Habis!');
+            const exist = cart.find(i => i.id == id);
+            if(exist) { if(exist.jumlah < stok) exist.jumlah++; else return alert('Stok Maksimal!'); } 
+            else { cart.push({ id: id, nama: dataset.nama, harga: parseFloat(dataset.harga), jumlah: 1, stok: stok }); }
+            render();
+        };
+
+        // --- EVENT LISTENERS ---
+        document.querySelector('.grid-produk').addEventListener('click', e => {
+            const card = e.target.closest('.product-item'); if(card) add(card.dataset);
+        });
+
+        cartListEl.addEventListener('click', e => {
+            const btn = e.target.closest('button'); if(!btn) return;
+            const id = btn.getAttribute('data-id'); const idx = cart.findIndex(i => i.id == id);
+            if(idx === -1) return;
+            if(btn.classList.contains('btn-inc')) { if(cart[idx].jumlah < cart[idx].stok) cart[idx].jumlah++; else alert('Stok Maks'); }
+            else if(btn.classList.contains('btn-dec')) { cart[idx].jumlah--; if(cart[idx].jumlah === 0) cart.splice(idx, 1); }
+            else if(btn.classList.contains('btn-del')) { cart.splice(idx, 1); }
+            render();
+        });
+
+        inputBayar.addEventListener('input', calc);
+        document.querySelector('.cat-wrapper').addEventListener('click', e => {
+            const btn = e.target.closest('.cat-btn'); if(!btn) return;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+            const kid = btn.getAttribute('data-kategori-id');
+            productItems.forEach(item => { item.style.display = (kid === 'semua' || item.getAttribute('data-kategori-id') === kid) ? 'block' : 'none'; });
+        });
+
+        btnBayar.addEventListener('click', async () => {
+            const nama = inputNama.value; const bayar = parseFloat(inputBayar.value) || 0;
+            const total = cart.reduce((sum, i) => sum + (i.harga * i.jumlah), 0);
+            if(cart.length === 0) return alert('Keranjang Kosong');
+            if(!nama.trim()) { alert('Isi Nama Pelanggan'); return inputNama.focus(); }
+            if(bayar < total) { alert('Pembayaran Kurang'); return inputBayar.focus(); }
+            if(!confirm('Proses Transaksi?')) return;
+            try {
+                btnBayar.disabled = true; btnBayar.innerText = 'Loading...';
+                const method = document.querySelector('input[name="metode"]:checked').value;
+                const res = await fetch(routeStore, {
+                    method: 'POST', headers: {'Content-Type':'application/json', 'X-CSRF-TOKEN':csrfToken, 'Accept':'application/json'},
+                    body: JSON.stringify({ nama_pembeli: nama, metode_pembayaran: method, total_harga: total, jumlah_bayar: bayar, items: cart.map(i => ({produk_id: i.id, jumlah: i.jumlah, harga: i.harga})) })
                 });
+                const json = await res.json();
+                if(res.ok) window.location.href = `/cetak-struk/${json.kode_transaksi}`;
+                else { alert(json.message || 'Gagal'); btnBayar.disabled = false; btnBayar.innerText = 'BAYAR'; }
+            } catch(e) { alert('Error Sistem'); btnBayar.disabled = false; btnBayar.innerText = 'BAYAR'; }
+        });
 
-                // Listener untuk aksi di keranjang
-                cartItemsList.addEventListener('click', handleCartActions);
-
-                // Listener untuk update kembalian
-                jumlahBayarEl.addEventListener('input', updateTotals);
-
-                // Listener tombol Proses
-                btnProses.addEventListener('click', processTransaction);
-
-                // Listener tombol Batal
-                btnBatal.addEventListener('click', () => {
-                    if (confirm('Batalkan transaksi ini dan kosongkan keranjang?')) {
-                        resetTransaksi();
-                    }
-                });
-
-            });
-        </script>
-</body>
-
-</html>
+        document.getElementById('btn-reset').addEventListener('click', () => { if(confirm('Reset Semua?')) location.reload(); });
+    });
+</script>
+@endpush
