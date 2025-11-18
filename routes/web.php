@@ -9,6 +9,7 @@ use App\Http\Controllers\Pemilik\DashboardController as PemilikDashboard;
 use App\Http\Controllers\ProdukController as ProdukController;
 use App\Http\Controllers\StrukController;
 use App\Http\Controllers\Pemilik\AkunController;
+use App\Http\Controllers\RiwayatTransaksi;
 
 // === RUTE TAMU (Tidak Perlu Login) ===
 // Tidak ada middleware 'auth' di sini
@@ -33,11 +34,10 @@ Route::middleware(['auth'])->group(function () {
 
     // # ALUR C: "Penjaga Pintu Unit Kasir"
     // Hanya user dengan role 'kasir' yang boleh masuk
-   Route::middleware(['role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {
-    Route::get('/dashboard', [KasirDashboard::class, 'index'])->name('dashboard');
-    Route::post('/transaksi', [KatalogController::class, 'store'])->name('transaksi.store');
-});
-
+    Route::middleware(['role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {
+        Route::get('/dashboard', [KasirDashboard::class, 'index'])->name('dashboard');
+        Route::post('/transaksi', [KatalogController::class, 'store'])->name('transaksi.store');
+    });
 
     // # ALUR D: "Penjaga Pintu Unit Pemilik"
     // Hanya user dengan role 'pemilik' yang boleh masuk
@@ -48,3 +48,14 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('akun', AkunController::class);
     });
 }); // <-- Akhir dari grup 'auth'
+
+Route::middleware(['auth'])->group(function () {
+    // Route untuk Riwayat Transaksi
+    Route::get('/riwayat-transaksi', [RiwayatTransaksi::class, 'index'])->name('riwayat-transaksi.index');
+    Route::get('/riwayat-transaksi/{id}', [RiwayatTransaksi::class, 'show'])->name('riwayat-transaksi.show');
+    Route::get('/riwayat-transaksi-statistik', [RiwayatTransaksi::class, 'statistik'])->name('riwayat-transaksi.statistik');
+    Route::post('/riwayat-transaksi/{id}/cancel', [RiwayatTransaksi::class, 'cancel'])->name('riwayat-transaksi.cancel');
+    Route::get('/riwayat-transaksi/{id}/invoice', [RiwayatTransaksi::class, 'printInvoice'])->name('riwayat-transaksi.invoice');
+    Route::get('/riwayat-transaksi-export', [RiwayatTransaksi::class, 'export'])->name('riwayat-transaksi.export');
+    
+});

@@ -293,8 +293,8 @@
             </li>
            
             <li class="nav-item">
-                <a class="nav-link" href="#">Riwayat Transaksi</a>
-            </li>
+              <a class="nav-link" href="{{ route('riwayat-transaksi.index') }}">Riwayat Transaksi</a>
+            </li>   
         </ul>
 
         <div class="sidebar-footer">

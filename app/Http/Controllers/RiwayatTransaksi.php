@@ -8,48 +8,59 @@ use Illuminate\Support\Facades\Auth;
 
 class RiwayatTransaksi extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    private function resolveView($viewName)
+    {
+        $role = Auth::user()->role ?? 'kasir';
+
+        if ($role === 'admin') {
+            return "admin.$viewName";
+        }
+
+        if ($role === 'kasir') {
+            return "kasir.$viewName";
+        }
+
+        // fallback untuk pemilik
+        return "pemilik.$viewName";
+    }
+
     public function index(Request $request)
     {
-        $query = DB::table('transaksi')
-            ->select('transaksi.*', 'users.name as nama_user')
-            ->leftJoin('users', 'transaksi.user_id', '=', 'users.id')
-            ->orderBy('transaksi.created_at', 'desc');
+        $query = DB::table('transaksis')
+            ->select('transaksis.*', 'users.name as nama_user')
+            ->leftJoin('users', 'transaksis.id_pengguna', '=', 'users.id')
+            ->orderBy('transaksis.created_at', 'desc');
 
-        // Filter berdasarkan tanggal
+        // Filter tanggal
         if ($request->has('tanggal_mulai') && $request->has('tanggal_selesai')) {
-            $query->whereBetween('transaksi.created_at', [
-                $request->tanggal_mulai, 
+            $query->whereBetween('transaksis.created_at', [
+                $request->tanggal_mulai,
                 $request->tanggal_selesai
             ]);
         }
 
-        // Filter berdasarkan status
+        // Filter status
         if ($request->has('status') && $request->status != '') {
-            $query->where('transaksi.status', $request->status);
+            $query->where('transaksis.status', $request->status);
         }
 
-        // Filter berdasarkan user (jika bukan admin)
-        if (!Auth::user()->is_admin) {
-            $query->where('transaksi.user_id', Auth::id());
+        // Filter user sesuai role
+        $userRole = Auth::user()->role ?? 'kasir';
+        if (!in_array($userRole, ['admin', 'pemilik'])) {
+            $query->where('transaksis.id_pengguna', Auth::id());
         }
 
         $transaksi = $query->paginate(15);
 
-        return view('riwayat-transaksi.index', compact('transaksi'));
+        return view($this->resolveView('riwayatTransaksi'), compact('transaksi'));
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
-        $transaksi = DB::table('transaksi')
-            ->select('transaksi.*', 'users.name as nama_user', 'users.email')
-            ->leftJoin('users', 'transaksi.user_id', '=', 'users.id')
-            ->where('transaksi.id', $id)
+        $transaksi = DB::table('transaksis')
+            ->select('transaksis.*', 'users.name as nama_user', 'users.email')
+            ->leftJoin('users', 'transaksis.id_pengguna', '=', 'users.id')
+            ->where('transaksis.id', $id)
             ->first();
 
         if (!$transaksi) {
@@ -57,75 +68,63 @@ class RiwayatTransaksi extends Controller
                 ->with('error', 'Transaksi tidak ditemukan');
         }
 
-        // Cek authorization - user hanya bisa lihat transaksi sendiri
-        if (!Auth::user()->is_admin && $transaksi->user_id != Auth::id()) {
+        // Cek akses
+        $userRole = Auth::user()->role ?? 'kasir';
+        if (!in_array($userRole, ['admin', 'pemilik']) && $transaksi->id_pengguna != Auth::id()) {
             return redirect()->route('riwayat-transaksi.index')
                 ->with('error', 'Anda tidak memiliki akses ke transaksi ini');
         }
 
-        // Ambil detail transaksi
-        $detail_transaksi = DB::table('detail_transaksi')
-            ->select('detail_transaksi.*', 'produk.nama_produk', 'produk.harga')
-            ->leftJoin('produk', 'detail_transaksi.produk_id', '=', 'produk.id')
-            ->where('detail_transaksi.transaksi_id', $id)
+        $detail_transaksi = DB::table('detail_transaksis')
+            ->select('detail_transaksis.*', 'produks.nama_produk', 'produks.harga_produk as harga')
+            ->leftJoin('produks', 'detail_transaksis.produk_id', '=', 'produks.id')
+            ->where('detail_transaksis.transaksi_id', $id)
             ->get();
 
-        return view('riwayat-transaksi.show', compact('transaksi', 'detail_transaksi'));
+        return view($this->resolveView('riwayatTransaksi'), compact('transaksi', 'detail_transaksi'));
     }
 
-    /**
-     * Export transaksi to PDF/Excel
-     */
     public function export(Request $request)
     {
-        $format = $request->get('format', 'pdf'); // pdf atau excel
+        $format = $request->get('format', 'pdf');
 
-        $query = DB::table('transaksi')
-            ->select('transaksi.*', 'users.name as nama_user')
-            ->leftJoin('users', 'transaksi.user_id', '=', 'users.id')
-            ->orderBy('transaksi.created_at', 'desc');
+        $query = DB::table('transaksis')
+            ->select('transaksis.*', 'users.name as nama_user')
+            ->leftJoin('users', 'transaksis.id_pengguna', '=', 'users.id')
+            ->orderBy('transaksis.created_at', 'desc');
 
-        // Filter berdasarkan tanggal
         if ($request->has('tanggal_mulai') && $request->has('tanggal_selesai')) {
-            $query->whereBetween('transaksi.created_at', [
-                $request->tanggal_mulai, 
+            $query->whereBetween('transaksis.created_at', [
+                $request->tanggal_mulai,
                 $request->tanggal_selesai
             ]);
         }
 
-        // Filter berdasarkan user (jika bukan admin)
-        if (!Auth::user()->is_admin) {
-            $query->where('transaksi.user_id', Auth::id());
+        $userRole = Auth::user()->role ?? 'kasir';
+        if (!in_array($userRole, ['admin', 'pemilik'])) {
+            $query->where('transaksis.id_pengguna', Auth::id());
         }
 
         $transaksi = $query->get();
 
         if ($format == 'pdf') {
-            // Implementasi export PDF
-            // return PDF::loadView('riwayat-transaksi.pdf', compact('transaksi'))->download('riwayat-transaksi.pdf');
-            return response()->json(['message' => 'Export PDF - implementasi sesuai library yang digunakan']);
+            return response()->json(['message' => 'Export PDF - implementasi sesuai library']);
         } else {
-            // Implementasi export Excel
-            // return Excel::download(new TransaksiExport($transaksi), 'riwayat-transaksi.xlsx');
-            return response()->json(['message' => 'Export Excel - implementasi sesuai library yang digunakan']);
+            return response()->json(['message' => 'Export Excel - implementasi sesuai library']);
         }
     }
 
-    /**
-     * Get statistics
-     */
     public function statistik(Request $request)
     {
-        $query = DB::table('transaksi');
+        $query = DB::table('transaksis');
 
-        // Filter berdasarkan user (jika bukan admin)
-        if (!Auth::user()->is_admin) {
-            $query->where('user_id', Auth::id());
+        $userRole = Auth::user()->role ?? 'kasir';
+        if (!in_array($userRole, ['admin', 'pemilik'])) {
+            $query->where('id_pengguna', Auth::id());
         }
 
-        // Filter berdasarkan periode
         $periode = $request->get('periode', 'bulan_ini');
-        
+
         switch ($periode) {
             case 'hari_ini':
                 $query->whereDate('created_at', today());
@@ -143,38 +142,34 @@ class RiwayatTransaksi extends Controller
         }
 
         $statistik = [
-            'total_transaksi' => $query->count(),
-            'total_pendapatan' => $query->sum('total_harga'),
-            'transaksi_sukses' => $query->where('status', 'selesai')->count(),
-            'transaksi_pending' => $query->where('status', 'pending')->count(),
-            'transaksi_dibatalkan' => $query->where('status', 'dibatalkan')->count(),
+            'total_transaksi'      => $query->count(),
+            'total_pendapatan'     => $query->sum('total_harga'),
+            'transaksi_sukses'     => (clone $query)->where('status', 'selesai')->count(),
+            'transaksi_pending'    => (clone $query)->where('status', 'pending')->count(),
+            'transaksi_dibatalkan' => (clone $query)->where('status', 'dibatalkan')->count(),
         ];
 
-        return view('riwayat-transaksi.statistik', compact('statistik', 'periode'));
+        return view($this->resolveView('riwayatTransaksi'), compact('statistik', 'periode'));
     }
 
-    /**
-     * Cancel transaction
-     */
     public function cancel($id)
     {
-        $transaksi = DB::table('transaksi')->where('id', $id)->first();
+        $transaksi = DB::table('transaksis')->where('id', $id)->first();
 
         if (!$transaksi) {
             return redirect()->back()->with('error', 'Transaksi tidak ditemukan');
         }
 
-        // Cek authorization
-        if (!Auth::user()->is_admin && $transaksi->user_id != Auth::id()) {
+        $userRole = Auth::user()->role ?? 'kasir';
+        if (!in_array($userRole, ['admin', 'pemilik']) && $transaksi->id_pengguna != Auth::id()) {
             return redirect()->back()->with('error', 'Anda tidak memiliki akses');
         }
 
-        // Cek apakah transaksi bisa dibatalkan
         if ($transaksi->status != 'pending') {
             return redirect()->back()->with('error', 'Transaksi tidak dapat dibatalkan');
         }
 
-        DB::table('transaksi')
+        DB::table('transaksis')
             ->where('id', $id)
             ->update([
                 'status' => 'dibatalkan',
@@ -185,32 +180,29 @@ class RiwayatTransaksi extends Controller
             ->with('success', 'Transaksi berhasil dibatalkan');
     }
 
-    /**
-     * Print invoice
-     */
     public function printInvoice($id)
     {
-        $transaksi = DB::table('transaksi')
-            ->select('transaksi.*', 'users.name as nama_user', 'users.email', 'users.telepon')
-            ->leftJoin('users', 'transaksi.user_id', '=', 'users.id')
-            ->where('transaksi.id', $id)
+        $transaksi = DB::table('transaksis')
+            ->select('transaksis.*', 'users.name as nama_user', 'users.email')
+            ->leftJoin('users', 'transaksis.id_pengguna', '=', 'users.id')
+            ->where('transaksis.id', $id)
             ->first();
 
         if (!$transaksi) {
             return redirect()->back()->with('error', 'Transaksi tidak ditemukan');
         }
 
-        // Cek authorization
-        if (!Auth::user()->is_admin && $transaksi->user_id != Auth::id()) {
+        $userRole = Auth::user()->role ?? 'kasir';
+        if (!in_array($userRole, ['admin', 'pemilik']) && $transaksi->id_pengguna != Auth::id()) {
             return redirect()->back()->with('error', 'Anda tidak memiliki akses');
         }
 
-        $detail_transaksi = DB::table('detail_transaksi')
-            ->select('detail_transaksi.*', 'produk.nama_produk', 'produk.harga')
-            ->leftJoin('produk', 'detail_transaksi.produk_id', '=', 'produk.id')
-            ->where('detail_transaksi.transaksi_id', $id)
+        $detail_transaksi = DB::table('detail_transaksis')
+            ->select('detail_transaksis.*', 'produks.nama_produk', 'produks.harga_produk as harga')
+            ->leftJoin('produks', 'detail_transaksis.produk_id', '=', 'produks.id')
+            ->where('detail_transaksis.transaksi_id', $id)
             ->get();
 
-        return view('riwayat-transaksi.invoice', compact('transaksi', 'detail_transaksi'));
+        return view($this->resolveView('riwayatTransaksi'), compact('transaksi', 'detail_transaksi'));
     }
 }
