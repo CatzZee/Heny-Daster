@@ -33,22 +33,20 @@
     /* B. PRODUK (MENYESUAIKAN SISA RUANG) */
     .product-scroll-area {
         /* Memberi jarak kanan supaya tidak tertutup keranjang */
-        margin-right: 360px !important; 
+        margin-right: 345px !important; 
         
         height: 100vh;        /* Full Tinggi */
         overflow-y: auto;     /* Scrollbar sendiri */
         padding: 20px;
-        background-color: #f4f6f9;
         transition: all 0.3s ease;
     }
 
     /* --- 2. DESAIN CARD (OLSERA STYLE) --- */
     .grid-produk {
         display: grid;
-        /* Auto-fill: Isi kolom sebanyak mungkin, minimal lebar 160px */
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
         gap: 15px;
-        padding-bottom: 100px; /* Jarak aman scroll bawah */
+        padding-bottom: 100px;
     }
 
     .card-pos {
@@ -86,6 +84,65 @@
     /* Scrollbar */
     .product-scroll-area::-webkit-scrollbar, .cart-main::-webkit-scrollbar { width: 6px; }
     .product-scroll-area::-webkit-scrollbar-thumb, .cart-main::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
+
+    /* --- PERUBAHAN WARNA UNTUK KERANJANG --- */
+    /* Badge Jumlah Item di Header Keranjang */
+    .cart-head .badge {
+        background-color: #ff3b91 !important; /* Warna tema kita */
+    }
+
+    /* Ikon Keranjang di Header */
+    .cart-head .bi-cart4 {
+        color: #ff3b91 !important; /* Warna tema kita */
+    }
+
+    /* Ikon Plus di Card Produk */
+    .card-pos .bi-plus-circle-fill {
+        color: #ff3b91 !important; /* Warna tema kita */
+    }
+
+    /* Ikon Trash (Hapus Item) */
+    .list-item .btn-del {
+        color: #ff3b91 !important; /* Warna tema kita */
+    }
+
+    /* Tombol Bayar */
+    #btn-bayar {
+        background: #ff3b91 !important; /* Warna tema kita */
+        border-color: #ff3b91 !important;
+    }
+
+    /* Tombol Tunai/QRIS (Outline) */
+    .btn-outline-danger {
+        --bs-btn-color: #ff3b91;
+        --bs-btn-border-color: #ff3b91;
+        --bs-btn-hover-color: #fff;
+        --bs-btn-hover-bg: #ff3b91;
+        --bs-btn-hover-border-color: #ff3b91;
+        --bs-btn-active-color: #fff;
+        --bs-btn-active-bg: #ff3b91;
+        --bs-btn-active-border-color: #ff3b91;
+        --bs-btn-disabled-color: #ff3b91;
+        --bs-btn-disabled-border-color: #ff3b91;
+        --bs-gradient: none;
+    }
+
+    /* Tombol Kuantitas (+/-) di Keranjang */
+    .qty-box .btn-pm {
+        color: #ff3b91; /* Ikon +/- */
+    }
+    .qty-box .btn-pm:hover {
+        background: #ff3b91;
+        color: white;
+    }
+
+    /* Teks Kembali (jika kurang bayar) */
+    .text-danger {
+        color: #ff3b91 !important; /* Mengganti merah default Bootstrap */
+    }
+    .text-success {
+        color: #28a745 !important; /* Pertahankan hijau standar untuk kembali positif */
+    }
 </style>
 @endpush
 
@@ -101,8 +158,8 @@
                 <small class="text-muted">Pilih item untuk ditambahkan</small>
             </div>
             <div class="input-group input-group-sm w-auto" style="width: 220px;">
-                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                <input type="text" class="form-control border-start-0" placeholder="Cari produk..." style="box-shadow: none;">
+                <span class="input-group-text bg-white border-end-0" style="border-radius: 20px 0 0 20px;"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control border-start-0" placeholder="Cari produk..." style="box-shadow: none; border-radius: 0 20px 20px 0;">
             </div>
         </div>
 
@@ -129,14 +186,14 @@
                      data-stok="{{ $produk->stok_produk }}">
                      
                      <div class="img-wrapper">
-                         <img src="{{ $produk->path_gambar ? Storage::url($produk->path_gambar) : 'https://via.placeholder.com/200x200?text=Img' }}" loading="lazy">
+                         <img src="{{ $produk->path_gambar ? Storage::url($produk->path_gambar) : '/storage/produks/noImage.png' }}" loading="lazy">
                          <span class="badge-stok">Stok: {{ $produk->stok_produk }}</span>
                      </div>
                      <div class="info-wrapper">
                          <div class="txt-nama" title="{{ $nama_display }}">{{ $nama_display }}</div>
                          <div class="d-flex justify-content-between align-items-center">
                             <div class="txt-harga">{{ 'Rp ' . number_format($produk->harga_produk, 0, ',', '.') }}</div>
-                            <i class="bi bi-plus-circle-fill text-danger fs-5 opacity-50"></i>
+                            <i class="bi bi-plus-circle-fill fs-5 opacity-75"></i>
                          </div>
                      </div>
                 </div>
@@ -155,9 +212,9 @@
         {{-- Cart Header --}}
         <div class="cart-head d-flex justify-content-between align-items-center">
             <h6 class="fw-bold m-0 d-flex align-items-center gap-2">
-                <i class="bi bi-cart4 text-danger fs-5"></i> Pesanan
+                <i class="bi bi-cart4 fs-5"></i> Pesanan
             </h6>
-            <span class="badge bg-danger rounded-pill" id="cart-count">0</span>
+            <span class="badge rounded-pill" id="cart-count">0</span>
         </div>
 
         {{-- Cart Body --}}
@@ -249,7 +306,7 @@
                                 <div class="qty-num">${item.jumlah}</div>
                                 <button class="btn-pm btn-inc" data-id="${item.id}">+</button>
                             </div>
-                            <button class="btn btn-link text-danger p-0 btn-del" data-id="${item.id}"><i class="bi bi-trash"></i></button>
+                            <button class="btn btn-link p-0 btn-del" data-id="${item.id}"><i class="bi bi-trash"></i></button>
                         </div>
                     </div>`;
                 });
@@ -281,7 +338,13 @@
 
         // --- EVENT LISTENERS ---
         document.querySelector('.grid-produk').addEventListener('click', e => {
-            const card = e.target.closest('.product-item'); if(card) add(card.dataset);
+            const card = e.target.closest('.product-item');
+            if (card) {
+                add(card.dataset);
+                // Tambahkan kelas untuk efek hover visual saat item ditambahkan
+                card.classList.add('flash-added');
+                setTimeout(() => card.classList.remove('flash-added'), 300);
+            }
         });
 
         cartListEl.addEventListener('click', e => {

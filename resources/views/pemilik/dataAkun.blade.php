@@ -1,101 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Data Akun</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+@section('title', 'Data Akun - Heny Daster')
 
-    {{-- (BARU) Link untuk font Poppins dan Ikon Bootstrap --}}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
+@push('styles')
     <style>
-        :root {
-            --bs-primary-rgb: 255, 105, 180;
-            /* (BARU) Mengubah warna utama Bootstrap */
-            --bs-primary: #ff69b4;
-        }
+        /* --- CSS INI SAMA PERSIS DENGAN HALAMAN PRODUK (KONSISTEN) --- */
 
-        body,
-        html {
-            height: 100%;
-            font-family: 'Poppins', sans-serif;
-            /* (MODIFIKASI) Font lebih modern */
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-            /* (MODIFIKASI) Latar belakang konten */
-        }
-
-        /* === Sidebar Kiri (TIDAK DIUBAH) === */
-        .sidebar {
-            background-color: #ff9cc7;
-            height: 100vh;
-            text-align: center;
-            width: 230px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            padding-top: 20px;
-            /* (MODIFIKASI) Sedikit padding */
-        }
-
-        .sidebar .navbar .navbar-brand {
-            padding: 40px 20px;
-            font-weight: bold;
-            display: block;
-            color: white;
-        }
-
-        .sidebar .nav-link {
-            color: white;
-            font-weight: bold;
-            margin: 0 10px 10px 10px;
-            /* (MODIFIKASI) Rapi */
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .sidebar .nav-link.active,
-        .sidebar .nav-link:hover {
-            background-color: #ff69b4;
-            border-radius: 15px;
-            width: calc(100% - 20px);
-            /* (MODIFIKASI) Rapi */
-        }
-
-        /* === Akhir Sidebar === */
-
-
-        /* === Konten Utama === */
-        .main-content {
-            margin-left: 230px;
-            padding: 30px;
-        }
-
-        /* (MODIFIKASI) Menggunakan card Bootstrap */
-        .card-table {
-            padding: 30px;
-            border-radius: 15px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        /* Header & Judul */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
         }
 
         h1 {
             color: #ff69b4;
-            font-weight: 600;
-            /* (MODIFIKASI) */
+            font-size: 28px;
+            margin: 0;
+            font-weight: 700;
         }
 
-        /* (MODIFIKASI) Tombol Tambah (menggunakan style Bootstrap) */
+        /* Tombol Tambah Pink */
         .btn-tambah {
-            padding: 10px 25px;
+            padding: 12px 30px;
             background: #ff9cc7;
             color: white;
             border: none;
@@ -104,6 +32,15 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            float: right;
+        }
+
+        .btn-container {
+            margin-bottom: 20px;
+            margin-top: 20px;
+            position: flex;
+            right: 50px;
         }
 
         .btn-tambah:hover {
@@ -111,380 +48,462 @@
             transform: translateY(-2px);
         }
 
-        /* (MODIFIKASI) Input search (menggunakan style Bootstrap) */
+        /* Search Box */
+        .search-box {
+            margin-bottom: 20px;
+        }
+
         .search-input {
             width: 100%;
             max-width: 400px;
-            padding: 10px 20px;
-            border: 1px solid #dee2e6;
+            padding: 12px 20px;
+            border: 2px solid #ffc0cb;
             border-radius: 25px;
             font-size: 14px;
         }
 
         .search-input:focus {
             outline: none;
-            border-color: #ff9cc7;
-            box-shadow: 0 0 0 0.25rem rgba(255, 105, 180, 0.25);
-        }
-
-        /* (MODIFIKASI) Table Header Pink */
-        table thead {
-            background: #ff9cc7;
-            color: white;
-            border-color: #ff9cc7;
-        }
-
-        table th {
-            font-weight: 500;
-        }
-
-        /* (BARU) Style untuk foto profil di tabel */
-        .table-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #ffb6c1;
-        }
-
-        /* (BARU) Ganti warna primary Bootstrap */
-        .btn-primary {
-            background-color: #ff69b4;
             border-color: #ff69b4;
         }
 
-        .btn-primary:hover {
-            background-color: #e65f9a;
-            border-color: #e65f9a;
+        /* Tabel */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            overflow-x: auto;
+            display: grid;
+            grid-template-columns: 1fr;
         }
 
-        /* (BARU) Style tombol Batal di modal */
-        .btn-batal {
-            background-color: #6c757d;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        thead {
+            background: #ff9cc7;
             color: white;
         }
 
-        .sidebar-footer {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            right: 0;
-            padding: 0 20px;
+        th,
+        td {
+            padding: 12px 16px;
+            text-align: left;
+            vertical-align: middle;
+            white-space: nowrap;
         }
 
-        .logout-button {
-            display: block;
+        td {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tbody tr:hover {
+            background: #fff0f5;
+        }
+
+        /* Avatar Bulat */
+        td img.avatar {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #ffd1dc;
+        }
+
+        /* Badge Role */
+        .badge-role {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .bg-admin {
+            background: #4A90E2;
+        }
+
+        .bg-owner {
+            background: #ff69b4;
+        }
+
+        .bg-cashier {
+            background: #f0ad4e;
+        }
+
+        /* Tombol Aksi */
+        .btn-aksi {
+            padding: 6px 15px;
+            margin: 0 3px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-edit {
+            background: #4A90E2;
+        }
+
+        .btn-edit:hover {
+            background: #357ABD;
+        }
+
+        .btn-hapus {
+            background: #ff6b6b;
+        }
+
+        .btn-hapus:hover {
+            background: #ff4444;
+        }
+
+        /* --- CSS MODAL CUSTOM (Sama seperti Produk) --- */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 12px 15px;
-            background-color: #ff69b4;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+        }
+
+        .custom-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header h2 {
+            color: #ff69b4;
+            margin-bottom: 20px;
+            font-size: 24px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ffc0cb;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #ff69b4;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-batal {
+            background: #ccc;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
             color: white;
             font-weight: bold;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
         }
 
-        .logout-button:hover {
-            background-color: #d9538f;
+        .btn-simpan {
+            background: #ff9cc7;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-simpan:hover {
+            background: #ff69b4;
+        }
+
+        .text-muted-small {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+            display: block;
         }
     </style>
-</head>
+@endpush
 
-<body>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+@section('content')
 
-    <div class="sidebar">
-        <nav class="navbar mb-3">
-            <a class="navbar-brand" href="#">Heny Daster</a>
-        </nav>
-        <ul class="nav flex-column" id="menu">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route($routePrefix . '.dashboard') }}">Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route($routePrefix . '.produk.index') }}">Stok Barang</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Riwayat Transaksi</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="{{ route($routePrefix . '.akun.index') }}">Data Akun</a>
-            </li>
-        </ul>
-        <div class="sidebar-footer">
-            <form action="{{ route('logout') }}" method="POST" style="margin: 0; padding: 0;">
+    {{-- Header --}}
+    <div class="header">
+        <h1>👤 Data Akun</h1>
+    </div>
+    <div class="btn-container">
+        <button class="btn-tambah" onclick="openCreateModal()">+ Tambah Barang</button>
+    </div>
+    {{-- Search --}}
+    <div class="search-box">
+        <input type="text" class="search-input" placeholder="Cari nama akun atau role..." id="searchInput"
+            onkeyup="searchTable()">
+    </div>
+
+    {{-- Notifikasi --}}
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
+    @endif
+    @if ($errors->any())
+        <div class="alert alert-danger" role="alert">
+            <strong>Oops! Ada kesalahan:</strong>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- Tabel --}}
+    <div class="table-container">
+        <table id="akunTable">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Foto</th>
+                    <th>Nama Akun</th>
+                    <th>Role</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                @forelse ($users as $user)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>
+                            <img src="{{ $user->path_gambar ? Storage::url($user->path_gambar) : '/storage/produks/noImage.png  ' }}"
+                                class="avatar" alt="Avatar">
+                        </td>
+                        <td>{{ $user->nama }}</td>
+                        <td>
+                            @if ($user->role == 'admin')
+                                <span class="badge-role bg-admin">Admin</span>
+                            @elseif($user->role == 'pemilik')
+                                <span class="badge-role bg-owner">Pemilik</span>
+                            @else
+                                <span class="badge-role bg-cashier">Kasir</span>
+                            @endif
+                        </td>
+                        <td>
+                            {{-- Tombol Edit (Pakai JSON agar aman) --}}
+                            <button class="btn-aksi btn-edit"{{ Auth::id() == $user->id ? 'disabled style=opacity:0.5;cursor:not-allowed;' : '' }}
+                                onclick='openEditModal(@json($user))'>Edit</button>
+
+                            {{-- Tombol Hapus --}}
+                            <form action="{{ route($routePrefix . '.akun.destroy', $user) }}" method="POST"
+                                class="d-inline" onsubmit="return confirm('Yakin hapus akun {{ $user->nama }}?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-aksi btn-hapus"
+                                    {{ Auth::id() == $user->id ? 'disabled style=opacity:0.5;cursor:not-allowed;' : '' }}>
+                                    Hapus
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center" style="padding: 30px; color: #888;">Belum ada data akun.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    {{-- MODAL CUSTOM --}}
+    <div class="custom-modal" id="myModal">
+        <div class="custom-modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Tambah Akun Baru</h2>
+            </div>
+
+            <form id="formAkun" method="POST" action="" enctype="multipart/form-data">
                 @csrf
-                <button type="submit" class="logout-button">
-                    Logout
-                </button>
+                <input type="hidden" name="_method" id="formMethod" value="POST">
+
+                <div class="form-group">
+                    <label for="path_gambar">Foto Profil (Opsional)</label>
+                    <input type="file" id="path_gambar" name="path_gambar" accept="image/*">
+                    <span class="text-muted-small">Kosongkan jika tidak ingin mengubah foto.</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="nama">Nama Lengkap</label>
+                    <input type="text" id="nama" name="nama" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Role / Jabatan</label>
+                    <select id="role" name="role" required>
+                        <option value="">-- Pilih Role --</option>
+                        <option value="admin">Admin</option>
+                        <option value="kasir">Kasir</option>
+                        <option value="pemilik">Pemilik</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password">
+                    <span class="text-muted-small" id="passwordHelp">Wajib diisi untuk akun baru.</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="password_confirmation">Konfirmasi Password</label>
+                    <input type="password" id="password_confirmation" name="password_confirmation">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-batal" onclick="closeModal()">Batal</button>
+                    <button type="submit" class="btn-simpan" id="btnSimpan">Simpan</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>👤 Data Akun</h1>
-            {{-- (MODIFIKASI) Menggunakan data-bs-toggle Bootstrap --}}
-            <button class="btn btn-tambah" data-bs-toggle="modal" data-bs-target="#akunModal"
-                onclick="openCreateModal()">
-                + Tambah Akun
-            </button>
-        </div>
+@endsection
 
-        {{-- (MODIFIKASI) Notifikasi (sudah benar) --}}
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-        @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-        @if ($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong>Oops! Ada yang salah:</strong>
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-
-        {{-- (MODIFIKASI) Card + Table --}}
-        <div class="card card-table">
-            <div class="card-body">
-                <div class="search-box mb-3">
-                    <input type="text" class="search-input form-control" placeholder="Cari akun (nama, role)..."
-                        id="searchInput" onkeyup="searchTable()">
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle" id="stokTable">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Foto</th>
-                                <th>Nama</th>
-                                <th>Role</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                            @forelse ($users as $user)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>
-                                        <img class="table-avatar" {{-- (MODIFIKASI) Class baru --}}
-                                            src="{{ $user->path_gambar ? Storage::url($user->path_gambar) : 'https://via.placeholder.com/60' }}"
-                                            alt="{{ $user->nama }}">
-                                    </td>
-                                    <td>{{ $user->nama }}</td>
-                                    <td>
-                                        {{-- (MODIFIKASI) Badge untuk role --}}
-                                        @if ($user->role == 'admin')
-                                            <span class="badge bg-primary">{{ $user->role }}</span>
-                                        @elseif($user->role == 'pemilik')
-                                            <span class="badge bg-success">{{ $user->role }}</span>
-                                        @else
-                                            <span class="badge bg-secondary">{{ $user->role }}</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        {{-- (MODIFIKASI) Tombol Aksi Bootstrap + Ikon --}}
-                                        <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal"
-                                            data-bs-target="#akunModal" onclick="openEditModal({{ $user }})">
-                                            <i class="bi bi-pencil-fill"></i> Edit
-                                        </button>
-
-                                        <form action="{{ route($routePrefix . '.akun.destroy', $user) }}"
-                                            method="POST" class="d-inline"
-                                            onsubmit="return confirm('Anda yakin ingin menghapus akun ini?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger"
-                                                {{ Auth::user()->id == $user->id ? 'disabled' : '' }}>
-                                                <i class="bi bi-trash-fill"></i> Hapus
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center">Belum ada data akun.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="akunModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 15px;">
-                <form id="formAkun" method="POST" action="" enctype="multipart/form-data">
-                    <div class="modal-header" style="background: #fff0f5; border-bottom-color: #ffc0cb;">
-                        <h2 class="modal-title fs-5" id="modalTitle" style="color: #ff69b4;">Tambah Akun Baru</h2>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        @csrf
-                        <input type="hidden" name="_method" id="formMethod" value="POST">
-
-                        <div class="mb-3">
-                            <label for="path_gambar" class="form-label">Foto Akun (Opsional)</label>
-                            <input type="file" class="form-control" id="path_gambar" name="path_gambar"
-                                accept="image/*">
-                            <small class="form-text text-muted">Kosongkan jika tidak ingin mengubah foto.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="nama" class="form-label">Nama Akun</label>
-                            <input type="text" class="form-control" id="nama" name="nama" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="role" class="form-label">Role</label>
-                            <select class="form-select" id="role" name="role" required>
-                                <option value="">Pilih Role</option>
-                                <option value="admin">Admin</option>
-                                <option value="kasir">Kasir</option>
-                                <option value="pemilik">Pemilik</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password">
-                            <small id="passwordHelp" class="form-text text-muted">
-                                Kosongkan jika tidak ingin mengubah password saat edit.
-                            </small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
-                            <input type="password" class="form-control" id="password_confirmation"
-                                name="password_confirmation">
-                        </div>
-                    </div>
-                    <div class="modal-footer" style="background: #fff0f5; border-top-color: #ffc0cb;">
-                        <button type="button" class="btn btn-batal" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary" id="btnSimpan">Simpan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-
-    {{-- (MODIFIKASI) JavaScript untuk Modal Bootstrap --}}
+@push('scripts')
     <script>
-        // (BARU) Inisialisasi Modal Bootstrap
-        const akunModalElement = document.getElementById('akunModal');
-        const akunModal = new bootstrap.Modal(akunModalElement);
-
-        // Elemen-elemen penting
+        // Variabel Elemen
+        const modal = document.getElementById('myModal');
         const modalTitle = document.getElementById('modalTitle');
         const formAkun = document.getElementById('formAkun');
         const formMethod = document.getElementById('formMethod');
         const btnSimpan = document.getElementById('btnSimpan');
-        const passwordInput = document.getElementById('password');
         const passwordHelp = document.getElementById('passwordHelp');
+        const passwordInput = document.getElementById('password');
 
+        // Route dari Blade
         const storeUrl = "{{ route($routePrefix . '.akun.store') }}";
         const updateUrlBase = "{{ route($routePrefix . '.akun.index') }}";
 
-        // (BARU) Hapus fungsi closeModal(), Bootstrap sudah handle
-        // function closeModal() { ... }
-
-        // Fungsi untuk modal 'Create'
-        function openCreateModal() {
+        // 1. BUKA MODAL CREATE
+        window.openCreateModal = function() {
             formAkun.reset();
             modalTitle.innerText = 'Tambah Akun Baru';
             formAkun.action = storeUrl;
             formMethod.value = 'POST';
+
+            // Password wajib untuk create
             passwordInput.required = true;
-            passwordHelp.style.display = 'none';
+            passwordHelp.innerText = "Wajib diisi untuk akun baru.";
+
             btnSimpan.disabled = false;
             btnSimpan.innerText = 'Simpan';
-
-            // (MODIFIKASI) Kita tidak perlu memanggil akunModal.show()
-            // karena tombol "Tambah Akun" sudah punya data-bs-toggle
+            modal.style.display = 'block';
         }
 
-        // Fungsi untuk modal 'Edit'
-        function openEditModal(user) {
+        // 2. BUKA MODAL EDIT
+        window.openEditModal = function(user) {
             formAkun.reset();
-            modalTitle.innerText = 'Edit Akun';
+            modalTitle.innerText = 'Edit Data Akun';
             formAkun.action = updateUrlBase + '/' + user.id;
             formMethod.value = 'PUT';
-            passwordInput.required = false;
-            passwordHelp.style.display = 'block';
-            btnSimpan.disabled = false;
-            btnSimpan.innerText = 'Simpan';
 
-            // Isi form
+            // Isi data
             document.getElementById('nama').value = user.nama;
             document.getElementById('role').value = user.role;
 
-            // (MODIFIKASI) Kita panggil .show() di sini karena 
-            // tombol di tabel tidak punya data-bs-toggle
-            // ...atau kita bisa tambahkan. Untuk konsistensi, kita panggil di sini:
-            // akunModal.show(); // -> Sebenarnya tidak perlu jika tombol edit punya data-bs-toggle
+            // Password opsional saat edit
+            passwordInput.required = false;
+            passwordHelp.innerText = "Kosongkan jika tidak ingin mengubah password.";
+
+            btnSimpan.disabled = false;
+            btnSimpan.innerText = 'Simpan';
+            modal.style.display = 'block';
         }
 
-        // Fungsi searchTable() (tidak berubah)
-        function searchTable() {
+        // 3. TUTUP MODAL
+        window.closeModal = function() {
+            modal.style.display = 'none';
+            formAkun.reset();
+        }
+
+        // 4. SEARCH TABLE
+        window.searchTable = function() {
             let input = document.getElementById('searchInput');
             let filter = input.value.toLowerCase();
-            let table = document.getElementById('stokTable');
-            let tr = table.getElementsByTagName('tr');
-            for (let i = 1; i < tr.length; i++) {
-                let tdNama = tr[i].getElementsByTagName('td')[2];
-                let tdRole = tr[i].getElementsByTagName('td')[3];
+            let tr = document.querySelectorAll('#tableBody tr');
+
+            tr.forEach(row => {
+                let tdNama = row.getElementsByTagName('td')[2];
+                let tdRole = row.getElementsByTagName('td')[3];
                 if (tdNama || tdRole) {
                     let txtNama = tdNama.textContent || tdNama.innerText;
                     let txtRole = tdRole.textContent || tdRole.innerText;
-                    if (txtNama.toLowerCase().indexOf(filter) > -1 || txtRole.toLowerCase().indexOf(filter) > -1) {
-                        tr[i].style.display = '';
+                    if (txtNama.toLowerCase().indexOf(filter) > -1 || txtRole.toLowerCase().indexOf(filter) > -
+                        1) {
+                        row.style.display = "";
                     } else {
-                        tr[i].style.display = 'none';
+                        row.style.display = "none";
                     }
                 }
-            }
+            });
         }
 
-        // Event listener untuk form submit (tidak berubah)
+        // 5. EVENT LISTENER
+        // Klik luar modal
+        window.onclick = function(event) {
+            if (event.target == modal) closeModal();
+        }
+
+        // Submit Loading
         formAkun.addEventListener('submit', function() {
             btnSimpan.disabled = true;
             btnSimpan.innerText = 'Menyimpan...';
         });
 
-        // (HAPUS) window.onclick tidak perlu lagi
-
-        // Auto-open modal jika validasi GAGAL
+        // Auto Open Error
         @if ($errors->any())
-            // (MODIFIKASI) Kita tunggu DOM siap, baru panggil modal
-            document.addEventListener('DOMContentLoaded', (event) => {
-                // Asumsi error hanya dari "Create" untuk simpelnya
-                // Cek apakah ada ID lama (jika error edit)
-                @if (session('error_user_id'))
-                    // Logika untuk buka modal edit (lebih kompleks)
-                @else
-                    // Buka modal create
-                    openCreateModal();
-                    akunModal.show();
-                @endif
-            });
+            openCreateModal();
         @endif
     </script>
-</body>
-
-</html>
+@endpush

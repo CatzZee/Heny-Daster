@@ -15,7 +15,7 @@
     
     <ul class="nav flex-column" id="menu">
         <li class="nav-item">
-            <a class="nav-link {{ Request::routeIs('*.dashboard') ? 'active' : '' }}" href="#">
+            <a class="nav-link {{ Request::routeIs('*.dashboard') ? 'active' : '' }}" href="{{ route($routePrefix . '.dashboard') }}">
                 <i class="bi bi-bag-heart-fill"></i><span>Dashboard</span>
             </a>
         </li>
