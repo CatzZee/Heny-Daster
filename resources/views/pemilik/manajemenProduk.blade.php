@@ -45,7 +45,7 @@
             right: 50px;
         }
 
-        .btn-tambah:hover {
+        .btn-tambah:hover {3
             background: #ff69b4;
             transform: translateY(-2px);
         }
@@ -265,7 +265,7 @@
     @if (session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick="close()"></button>
         </div>
     @endif
 
