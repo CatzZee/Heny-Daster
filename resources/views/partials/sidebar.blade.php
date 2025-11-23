@@ -22,7 +22,7 @@
         <li class="nav-item">
             {{-- Contoh penggunaan routeIs untuk active state otomatis --}}
             <a class="nav-link {{ Request::routeIs('*.produk.*') ? 'active' : '' }}" href="{{ route($routePrefix . '.produk.index') }}">
-                <i class="bi bi-box-seam-fill"></i><span>Stok Barang</span>
+                <i class="bi bi-box-seam-fill"></i><span>Data Barang</span>
             </a>
         </li>
         <li class="nav-item">
