@@ -9,8 +9,14 @@ class DetailTransaksi extends Model
 {
     use HasFactory;
 
+    /**
+     * Tentukan nama tabel jika tidak mengikuti konvensi.
+     */
     protected $table = 'detail_transaksis';
 
+    /**
+     * Kolom yang boleh diisi secara massal.
+     */
     protected $fillable = [
         'id_transaksi',
         'id_produk',
@@ -19,7 +25,14 @@ class DetailTransaksi extends Model
     ];
 
     /**
-     * Relasi M-to-1: Satu DetailTransaksi dimiliki oleh satu Transaksi.
+     * Migrasi Anda memiliki timestamps(), jadi kita BIARKAN
+     * $timestamps = true (default).
+     * (Jika migrasi Anda TIDAK punya timestamps(), 
+     * tambahkan: public $timestamps = false;)
+     */
+
+    /**
+     * Relasi: Satu detail transaksi dimiliki oleh satu Transaksi.
      */
     public function transaksi()
     {
@@ -27,7 +40,7 @@ class DetailTransaksi extends Model
     }
 
     /**
-     * Relasi M-to-1: Satu DetailTransaksi merujuk ke satu Produk.
+     * Relasi: Satu detail transaksi merujuk ke satu Produk.
      */
     public function produk()
     {

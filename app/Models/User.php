@@ -4,15 +4,18 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+use App\Models\Transaksi;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 class User extends Authenticatable
 {
     use Notifiable;
+    use HasFactory;
 
     protected $fillable = [
         'nama',
         'password',
         'role',
+        'path_gambar',
     ];
 
     protected $hidden = [

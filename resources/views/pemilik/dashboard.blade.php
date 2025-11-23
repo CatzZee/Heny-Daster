@@ -1,525 +1,391 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <title>Dashboard</title>
-    <style>
-        body,
-        html {
-            height: 100%;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #fff;
-        }
+@section('title', 'Kasir - Heny Daster')
 
-        /* Sidebar */
-        .sidebar {
-            background-color: #ff9cc7;
-            height: 100vh;
-            text-align: center;
-            width: 230px;
-            position: fixed;
-            top: 0;
-            left: 0;
-        }
+@push('styles')
+<style>
+    /* --- 1. STRUKTUR POSISI MUTLAK (ANTI-TURUN) --- */
 
-        .sidebar .navbar .navbar-brand {
-            padding: 60px 20px;
-            font-weight: bold;
-            display: block;
-            color: white;
-        }
+    /* Reset Container Utama dari app.blade.php */
+    .main-content {
+        padding: 0 !important;
+        margin-right: 0 !important;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden !important; /* Matikan scroll body utama */
+    }
 
-        .sidebar .nav-link {
-            color: white;
-            font-weight: bold;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+    /* A. KERANJANG (DIPAKU DI KANAN) */
+    .cart-fixed-sidebar {
+        position: fixed;       /* KUNCI: Lepas dari aliran dokumen */
+        top: 0;
+        right: 0;
+        bottom: 0;             /* Full tinggi dari atas ke bawah */
+        width: 360px;          /* Lebar Tetap */
+        background: #ffffff;
+        z-index: 1050;         /* Pastikan di layer paling atas */
+        border-left: 1px solid #e0e0e0;
+        box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+    }
 
-        .sidebar .nav-link.active,
-        .sidebar .nav-link:hover {
-            background-color: #ff69b4;
-            border-radius: 15px;
-            width: 100%;
-        }
+    /* B. PRODUK (MENYESUAIKAN SISA RUANG) */
+    .product-scroll-area {
+        /* Memberi jarak kanan supaya tidak tertutup keranjang */
+        margin-right: 345px !important; 
+        
+        height: 100vh;        /* Full Tinggi */
+        overflow-y: auto;     /* Scrollbar sendiri */
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
 
-        /* Area kanan (konten utama + kategori) */
-        .main-content {
-            margin-left: 230px;
-            margin-right: 270px;
-            padding: 20px;
-        }
+    /* --- 2. DESAIN CARD (OLSERA STYLE) --- */
+    .grid-produk {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+        gap: 15px;
+        padding-bottom: 100px;
+    }
 
-        /* Kategori scroll horizontal */
-        .kategori-container {
-            display: flex;
-            overflow-x: auto;
-            white-space: nowrap;
-            padding: 10px;
-            scroll-behavior: smooth;
-            border-radius: 10px;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
+    .card-pos {
+        background: #fff; border-radius: 10px; border: 1px solid #eee;
+        overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s;
+        display: flex; flex-direction: column; height: 100%; position: relative;
+    }
+    .card-pos:hover { transform: translateY(-4px); border-color: #ffb3d9; box-shadow: 0 5px 15px rgba(255, 105, 180, 0.15); }
+    
+    .img-wrapper { height: 140px; width: 100%; background: #f9f9f9; position: relative; }
+    .img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    .badge-stok { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); color: white; font-size: 10px; padding: 2px 8px; border-radius: 4px; backdrop-filter: blur(2px); font-weight: 600; }
+    
+    .info-wrapper { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .txt-nama { font-size: 13px; font-weight: 600; color: #333; line-height: 1.4; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .txt-harga { font-size: 14px; font-weight: 800; color: #ff3b91; }
 
-        .kategori-container::-webkit-scrollbar {
-            display: none;
-        }
+    /* --- 3. KOMPONEN LAIN --- */
+    /* Kategori */
+    .cat-wrapper { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; margin-bottom: 20px; }
+    .cat-btn { padding: 8px 20px; background: white; border: 1px solid #ddd; border-radius: 20px; font-size: 13px; font-weight: 600; color: #666; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+    .cat-btn:hover, .cat-btn.active { background: #ff3b91; color: white; border-color: #ff3b91; }
 
-        .kategori-item {
-            display: inline-block;
-            padding: 40px 70px;
-            margin: 0 8px;
-            background-color: #ffffff;
-            border: 3px solid #ffc0cb;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 20px;
-            color: #ffc0cb;
-            user-select: none;
-        }
+    /* Keranjang Styling */
+    .cart-head { padding: 15px 20px; border-bottom: 1px solid #f0f0f0; background: white; flex-shrink: 0; }
+    .cart-main { flex: 1; overflow-y: auto; padding: 15px 20px; background: white; }
+    .cart-foot { padding: 20px; background: #fafafa; border-top: 1px solid #eee; flex-shrink: 0; }
 
-        .kategori-item:hover {
-            background-color: #ffc0cb;
-            color: white;
-            border-color: #ffc0cb;
-        }
+    .list-item { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #eee; }
+    .qty-box { display: flex; align-items: center; background: #f5f5f5; border-radius: 6px; padding: 2px; }
+    .btn-pm { width: 22px; height: 22px; background: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; color: #333; display: flex; align-items: center; justify-content: center; }
+    .btn-pm:hover { background: #ff3b91; color: white; }
+    .qty-num { width: 24px; text-align: center; font-size: 13px; font-weight: bold; }
 
-        .kategori-item.active {
-            background-color: #ff69b4;
-            color: white;
-            border-color: #ff69b4;
-        }
+    /* Scrollbar */
+    .product-scroll-area::-webkit-scrollbar, .cart-main::-webkit-scrollbar { width: 6px; }
+    .product-scroll-area::-webkit-scrollbar-thumb, .cart-main::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
 
-        .menu-baju {
-            margin-left: 20px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 40px 20px;
-            justify-items: center;
-            margin-top: 20px;
-        }
+    /* --- PERUBAHAN WARNA UNTUK KERANJANG --- */
+    /* Badge Jumlah Item di Header Keranjang */
+    .cart-head .badge {
+        background-color: #ff3b91 !important; /* Warna tema kita */
+    }
 
-        .card-baju {
-            position: relative;
-            width: 150px;
-            height: 180px;
-            background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            padding: 10px;
-            transition: transform 0.3s ease;
-            overflow: visible;
-            margin-bottom: 30px;
-        }
+    /* Ikon Keranjang di Header */
+    .cart-head .bi-cart4 {
+        color: #ff3b91 !important; /* Warna tema kita */
+    }
 
-        .card-baju:hover {
-            transform: translateY(-5px);
-        }
+    /* Ikon Plus di Card Produk */
+    .card-pos .bi-plus-circle-fill {
+        color: #ff3b91 !important; /* Warna tema kita */
+    }
 
-        .card-baju img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 15px;
-        }
+    /* Ikon Trash (Hapus Item) */
+    .list-item .btn-del {
+        color: #ff3b91 !important; /* Warna tema kita */
+    }
 
-        .harga {
-            position: absolute;
-            bottom: -5px;
-            left: -8px;
-            background-color: #ff9cc7;
-            color: white;
-            font-weight: bold;
-            border-radius: 20px;
-            padding: 6px 14px;
-            font-size: 15px;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-            transform: scale(1.1);
-            z-index: 10;
-        }
+    /* Tombol Bayar */
+    #btn-bayar {
+        background: #ff3b91 !important; /* Warna tema kita */
+        border-color: #ff3b91 !important;
+    }
 
-        .nama-baju {
-            position: absolute;
-            bottom: -45px;
-            left: 0;
-            right: 0;
-            font-weight: bold;
-            color: #ff3b91;
-            font-size: 16px;
-            text-align: center;
-        }
+    /* Tombol Tunai/QRIS (Outline) */
+    .btn-outline-danger {
+        --bs-btn-color: #ff3b91;
+        --bs-btn-border-color: #ff3b91;
+        --bs-btn-hover-color: #fff;
+        --bs-btn-hover-bg: #ff3b91;
+        --bs-btn-hover-border-color: #ff3b91;
+        --bs-btn-active-color: #fff;
+        --bs-btn-active-bg: #ff3b91;
+        --bs-btn-active-border-color: #ff3b91;
+        --bs-btn-disabled-color: #ff3b91;
+        --bs-btn-disabled-border-color: #ff3b91;
+        --bs-gradient: none;
+    }
 
-        /* Sidebar kanan (keranjang) */
-        .offcanvas-end {
-            background-color: #fff;
-            border-left: 2px solid #ffc0cb;
-        }
+    /* Tombol Kuantitas (+/-) di Keranjang */
+    .qty-box .btn-pm {
+        color: #ff3b91; /* Ikon +/- */
+    }
+    .qty-box .btn-pm:hover {
+        background: #ff3b91;
+        color: white;
+    }
 
-        .offcanvas-title {
-            color: #ff69b4;
-            font-weight: bold;
-        }
+    /* Teks Kembali (jika kurang bayar) */
+    .text-danger {
+        color: #ff3b91 !important; /* Mengganti merah default Bootstrap */
+    }
+    .text-success {
+        color: #28a745 !important; /* Pertahankan hijau standar untuk kembali positif */
+    }
+</style>
+@endpush
 
-        ::placeholder {
-            color: #ff9cc7 !important;
-        }
+@section('content')
 
-        .metode-bayar:hover {
-            background-color: #ffe6f2;
-            transform: translateY(-2px);
-        }
-
-        .metode-bayar.active {
-            background-color: #ffb3d9;
-            color: white;
-        }
-
-        #btnProses:hover {
-            background-color: #ff99c7;
-            transform: translateY(-2px);
-        }
-
-        .pembayaran-container {
-            display: flex;
-            overflow-x: auto;
-            white-space: nowrap;
-            gap: 10px;
-            padding: 10px 0;
-            scroll-behavior: smooth;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .pembayaran-container::-webkit-scrollbar {
-            display: none;
-        }
-
-        .pembayaran-item {
-            flex: 0 0 auto;
-            padding: 10px 25px;
-            background-color: #ffffff;
-            border: 3px solid #ffc0cb;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            color: #ffc0cb;
-            user-select: none;
-            font-weight: bold;
-        }
-
-        .pembayaran-item:hover {
-            background-color: #ffc0cb;
-            color: white;
-            border-color: #ffc0cb;
-        }
-
-        .pembayaran-item.active {
-            background-color: #ff69b4;
-            color: white;
-            border-color: #ff69b4;
-        }
-
-        /* ... (CSS kamu yang sudah ada) ... */
-
-        /* === CSS UNTUK LOGOUT === */
-
-        /* Ini adalah wrapper/container untuk tombol logout.
-  Kita pakai position: absolute agar dia "terkunci" di bagian bawah.
-*/
-        .sidebar-footer {
-            position: absolute;
-            /* Mengunci posisi relatif terhadap .sidebar */
-            bottom: 20px;
-            /* Beri jarak 20px dari bawah */
-            left: 0;
-            right: 0;
-            padding: 0 20px;
-            /* Samakan padding kiri-kanan dengan .navbar-brand */
-        }
-
-        /* Ini adalah style untuk tombol logoutnya.
-  Dibuat agar mirip dengan tema pink kamu.
-*/
-        .logout-button {
-            display: block;
-            width: 100%;
-            padding: 12px 15px;
-            background-color: #ff69b4;
-            /* Warna pink yang sama dengan nav active */
-            color: white;
-            font-weight: bold;
-            text-align: center;
-            text-decoration: none;
-            /* Hilangkan garis bawah dari tag <a> */
-            border-radius: 15px;
-            /* Samakan dengan radius nav-link */
-            transition: all 0.3s ease;
-            border: none;
-            /* Menghilangkan border default browser */
-            cursor: pointer;
-        }
-
-        /* Efek hover agar lebih interaktif */
-        .logout-button:hover {
-            background-color: #d9538f;
-            /* Warna pink sedikit lebih gelap */
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-    </style>
-</head>
-
-<body>
-    <!-- Sidebar Kiri -->
-    <div class="sidebar">
-        <nav class="navbar mb-3">
-            <a class="navbar-brand" href="#">Heny Daster</a>
-        </nav>
-        <ul class="nav flex-column" id="menu">
-            <li class="nav-item">
-                <a class="nav-link active" href="#">Katalog</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Stok Barang</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Riwayat Transaksi</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Laporan Keuangan</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Data Akun</a>
-            </li>
-        </ul>
-
-
-        <div class="sidebar-footer">
-            <form action="{{ route('logout') }}" method="POST" style="margin: 0; padding: 0;">
-                @csrf
-                <button type="submit" class="logout-button">
-                    Logout
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Konten utama -->
-    <div class="main-content">
-        <!-- Kategori di samping sidebar -->
-        <div class="kategori-container mb-4">
-            <div class="kategori-item active">Semua</div>
-            <div class="kategori-item">Favorit</div>
-            <div class="kategori-item">Daster Pendek</div>
-            <div class="kategori-item">Daster Panjang</div>
-            <div class="kategori-item">Babydoll</div>
-        </div>
-
-        <!-- Kotak-kotak menu baju -->
-        <div class="menu-baju mt-4">
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Pendek">
-                <div class="harga">90K</div>
-                <p class="nama-baju">Daster Pendek</p>
+    {{-- 1. AREA PRODUK (Fluid / Mengisi Sisa Ruang) --}}
+    <div class="product-scroll-area">
+        
+        {{-- Header --}}
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h5 class="fw-bold m-0 text-dark">Katalog Produk</h5>
+                <small class="text-muted">Pilih item untuk ditambahkan</small>
             </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Panjang">
-                <div class="harga">100K</div>
-                <p class="nama-baju">Daster Panjang</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Babydoll">
-                <div class="harga">85K</div>
-                <p class="nama-baju">Babydoll</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Santai">
-                <div class="harga">95K</div>
-                <p class="nama-baju">Kemeja Santai</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Motif">
-                <div class="harga">92K</div>
-                <p class="nama-baju">Daster Motif</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Bali">
-                <div class="harga">88K</div>
-                <p class="nama-baju">Daster Bali</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Babydoll Premium">
-                <div class="harga">110K</div>
-                <p class="nama-baju">Babydoll Premium</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Jumbo">
-                <div class="harga">105K</div>
-                <p class="nama-baju">Daster Jumbo</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Daster Polos">
-                <div class="harga">80K</div>
-                <p class="nama-baju">Daster Polos</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
-            </div>
-
-            <div class="card-baju">
-                <img src="https://via.placeholder.com/200x200" alt="Kemeja Tidur">
-                <div class="harga">98K</div>
-                <p class="nama-baju">Kemeja Tidur</p>
+            <div class="input-group input-group-sm w-auto" style="width: 220px;">
+                <span class="input-group-text bg-white border-end-0" style="border-radius: 20px 0 0 20px;"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control border-start-0" placeholder="Cari produk..." style="box-shadow: none; border-radius: 0 20px 20px 0;">
             </div>
         </div>
-    </div>
 
-    <!-- Sidebar Kanan (Keranjang) -->
-    <div class="offcanvas offcanvas-end show" id="offcanvasNavbar" tabindex="-1"
-        aria-labelledby="offcanvasNavbarLabel" style="visibility: visible; position: fixed; width: 250px;">
-        <div class="offcanvas-header">
-            <h4 style="color: #ffb3d9; font-weight: bold;">Keranjang</h4>
+        {{-- Kategori --}}
+        <div class="cat-wrapper">
+            <button class="cat-btn active" data-kategori-id="semua">Semua</button>
+            @foreach ($kategoris as $kategori)
+                <button class="cat-btn" data-kategori-id="{{ $kategori->id }}">{{ $kategori->nama_kategori }}</button>
+            @endforeach
         </div>
 
-        <div class="offcanvas-body">
-            <div class="container-fluid">
-                <div class="row g-2 mb-3">
-                    <div class="col-6">
-                        <input class="form-control text-center" type="text" placeholder="Orderan" disabled
-                            style="color:#ff3b91; border-radius:20px;">
-                    </div>
-                    <div class="col-6">
-                        <input class="form-control" list="datalistOptions" placeholder=""
-                            style=" border-radius:20px;">
-                        <datalist id="datalistOptions"></datalist>
-                    </div>
+        {{-- Grid --}}
+        <div class="grid-produk">
+            @forelse ($produks as $produk)
+                @php
+                    $nama_display = $produk->nama_produk . ($produk->ukuran_baju ? ' (' . $produk->ukuran_baju . ')' : '');
+                @endphp
+                
+                <div class="card-pos product-item" 
+                     data-kategori-id="{{ $produk->id_kategori }}"
+                     data-id="{{ $produk->id }}" 
+                     data-nama="{{ $nama_display }}"
+                     data-harga="{{ $produk->harga_produk }}" 
+                     data-stok="{{ $produk->stok_produk }}">
+                     
+                     <div class="img-wrapper">
+                         <img src="{{ $produk->path_gambar ? Storage::url($produk->path_gambar) : '/storage/produks/noImage.png' }}" loading="lazy">
+                         <span class="badge-stok">Stok: {{ $produk->stok_produk }}</span>
+                     </div>
+                     <div class="info-wrapper">
+                         <div class="txt-nama" title="{{ $nama_display }}">{{ $nama_display }}</div>
+                         <div class="d-flex justify-content-between align-items-center">
+                            <div class="txt-harga">{{ 'Rp ' . number_format($produk->harga_produk, 0, ',', '.') }}</div>
+                            <i class="bi bi-plus-circle-fill fs-5 opacity-75"></i>
+                         </div>
+                     </div>
                 </div>
+            @empty
+                <div class="col-12 text-center py-5 text-muted" style="grid-column: 1/-1;">
+                    <i class="bi bi-box2 fs-1 mb-2 d-block"></i> Produk Kosong
+                </div>
+            @endforelse
+        </div>
+    </div>
 
-                <!-- Area untuk item keranjang bisa ditambahkan di sini -->
 
-                <!-- Bagian Pembayaran -->
-                <div style="position: absolute; bottom: 20px; left: 15px; right: 15px;">
-                    <h5 style="color: #ffb3d9; font-weight: bold; margin-bottom: 15px;">Pembayaran</h5>
+    {{-- 2. AREA KERANJANG (FIXED POSITION / DIPAKU) --}}
+    <div class="cart-fixed-sidebar">
+        
+        {{-- Cart Header --}}
+        <div class="cart-head d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold m-0 d-flex align-items-center gap-2">
+                <i class="bi bi-cart4 fs-5"></i> Pesanan
+            </h6>
+            <span class="badge rounded-pill" id="cart-count">0</span>
+        </div>
 
-                    <div class="pembayaran-container mb-3">
-                        <div class="pembayaran-item active">Tunai</div>
-                        <div class="pembayaran-item">Qris</div>
-                        <div class="pembayaran-item">Transfer</div>
-                    </div>
-
-                    <button id="btnProses"
-                        style="width: 100%; padding: 15px; background-color: #ffb3d9; color: white; border: none; border-radius: 25px; font-weight: bold; font-size: 16px; cursor: pointer; transition: all 0.3s;">Proses</button>
+        {{-- Cart Body --}}
+        <div class="cart-main">
+            <div class="mb-3">
+                <input type="text" class="form-control form-control-sm" id="nama_pembeli" placeholder="Nama Pelanggan..." style="border-radius: 8px;">
+            </div>
+            
+            <div id="cart-list">
+                <div class="text-center py-5" id="empty-state">
+                    <i class="bi bi-bag-x fs-1 text-secondary opacity-25 mb-2 d-block"></i>
+                    <small class="text-muted">Keranjang kosong</small>
                 </div>
             </div>
         </div>
+
+        {{-- Cart Footer --}}
+        <div class="cart-foot">
+            <div class="d-flex justify-content-between mb-2 align-items-center">
+                <small class="text-muted fw-bold">Total</small>
+                <h5 class="fw-bold text-dark m-0" id="txt-total">Rp 0</h5>
+            </div>
+            
+            <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text bg-white">Rp</span>
+                <input type="number" class="form-control fw-bold" id="input-bayar" placeholder="0">
+            </div>
+
+            <div class="d-flex justify-content-between mb-3">
+                <small class="text-muted">Kembali</small>
+                <small class="fw-bold" id="txt-kembali">Rp 0</small>
+            </div>
+
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <input type="radio" class="btn-check" name="metode" id="tunai" value="Tunai" checked>
+                    <label class="btn btn-outline-danger w-100 btn-sm" for="tunai">Tunai</label>
+                </div>
+                <div class="col-6">
+                    <input type="radio" class="btn-check" name="metode" id="qris" value="Qris">
+                    <label class="btn btn-outline-danger w-100 btn-sm" for="qris">QRIS</label>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button id="btn-bayar" class="btn btn-danger fw-bold shadow-sm py-2">BAYAR</button>
+                <button id="btn-reset" class="btn btn-light btn-sm text-secondary">Reset</button>
+            </div>
+        </div>
     </div>
 
-    <script>
-        // kategori
-        const kategoriItems = document.querySelectorAll('.kategori-item');
-        kategoriItems.forEach(item => {
-            item.addEventListener('click', () => {
-                kategoriItems.forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-            });
+@endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- VARIABEL & SETUP ---
+        let cart = [];
+        const cartListEl = document.getElementById('cart-list');
+        const emptyStateEl = document.getElementById('empty-state');
+        const totalEl = document.getElementById('txt-total');
+        const kembaliEl = document.getElementById('txt-kembali');
+        const inputBayar = document.getElementById('input-bayar');
+        const inputNama = document.getElementById('nama_pembeli');
+        const btnBayar = document.getElementById('btn-bayar');
+        const cartCount = document.getElementById('cart-count');
+        const productItems = document.querySelectorAll('.product-item');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const routeStore = "{{ route($routePrefix . '.transaksi.store') }}";
+
+        const fmtRp = (n) => new Intl.NumberFormat('id-ID').format(n);
+
+        // --- RENDER UI ---
+        const render = () => {
+            if(cart.length === 0) {
+                cartListEl.innerHTML = ''; emptyStateEl.style.display = 'block'; cartCount.innerText = '0';
+            } else {
+                emptyStateEl.style.display = 'none'; cartListEl.innerHTML = ''; cartCount.innerText = cart.length;
+                cart.forEach(item => {
+                    cartListEl.innerHTML += `
+                    <div class="list-item">
+                        <div style="flex:1; padding-right:10px;">
+                            <div style="font-weight:600; font-size:13px; color:#333; margin-bottom:2px;">${item.nama}</div>
+                            <div style="font-size:11px; color:#888;">Rp ${fmtRp(item.harga)} x ${item.jumlah}</div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="qty-box me-2">
+                                <button class="btn-pm btn-dec" data-id="${item.id}">-</button>
+                                <div class="qty-num">${item.jumlah}</div>
+                                <button class="btn-pm btn-inc" data-id="${item.id}">+</button>
+                            </div>
+                            <button class="btn btn-link p-0 btn-del" data-id="${item.id}"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>`;
+                });
+            }
+            calc();
+        };
+
+        const calc = () => {
+            const total = cart.reduce((sum, i) => sum + (i.harga * i.jumlah), 0);
+            const bayar = parseFloat(inputBayar.value) || 0;
+            const kembali = bayar - total;
+            totalEl.innerText = 'Rp ' + fmtRp(total);
+            if(bayar > 0) {
+                kembaliEl.innerText = kembali >= 0 ? 'Rp ' + fmtRp(kembali) : '-Rp ' + fmtRp(Math.abs(kembali));
+                kembaliEl.className = kembali >= 0 ? 'fw-bold text-success' : 'fw-bold text-danger';
+            } else {
+                kembaliEl.innerText = 'Rp 0'; kembaliEl.className = 'fw-bold';
+            }
+        };
+
+        const add = (dataset) => {
+            const id = dataset.id; const stok = parseInt(dataset.stok);
+            if(stok <= 0) return alert('Stok Habis!');
+            const exist = cart.find(i => i.id == id);
+            if(exist) { if(exist.jumlah < stok) exist.jumlah++; else return alert('Stok Maksimal!'); } 
+            else { cart.push({ id: id, nama: dataset.nama, harga: parseFloat(dataset.harga), jumlah: 1, stok: stok }); }
+            render();
+        };
+
+        // --- EVENT LISTENERS ---
+        document.querySelector('.grid-produk').addEventListener('click', e => {
+            const card = e.target.closest('.product-item');
+            if (card) {
+                add(card.dataset);
+                // Tambahkan kelas untuk efek hover visual saat item ditambahkan
+                card.classList.add('flash-added');
+                setTimeout(() => card.classList.remove('flash-added'), 300);
+            }
         });
 
-        const navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                navItems.forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-            });
+        cartListEl.addEventListener('click', e => {
+            const btn = e.target.closest('button'); if(!btn) return;
+            const id = btn.getAttribute('data-id'); const idx = cart.findIndex(i => i.id == id);
+            if(idx === -1) return;
+            if(btn.classList.contains('btn-inc')) { if(cart[idx].jumlah < cart[idx].stok) cart[idx].jumlah++; else alert('Stok Maks'); }
+            else if(btn.classList.contains('btn-dec')) { cart[idx].jumlah--; if(cart[idx].jumlah === 0) cart.splice(idx, 1); }
+            else if(btn.classList.contains('btn-del')) { cart.splice(idx, 1); }
+            render();
         });
 
-        // Scroll horizontal kategori 
-        const kategoriContainer = document.querySelector('.kategori-container');
-        kategoriContainer.addEventListener('wheel', (evt) => {
-            evt.preventDefault();
-            kategoriContainer.scrollLeft += evt.deltaY;
+        inputBayar.addEventListener('input', calc);
+        document.querySelector('.cat-wrapper').addEventListener('click', e => {
+            const btn = e.target.closest('.cat-btn'); if(!btn) return;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+            const kid = btn.getAttribute('data-kategori-id');
+            productItems.forEach(item => { item.style.display = (kid === 'semua' || item.getAttribute('data-kategori-id') === kid) ? 'block' : 'none'; });
         });
 
-        // hover pembayaran
-        const pembayaranItems = document.querySelectorAll('.pembayaran-item');
-        let metodeSelected = 'Tunai'; // default
-
-        pembayaranItems.forEach(item => {
-            item.addEventListener('click', () => {
-                pembayaranItems.forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                metodeSelected = item.textContent;
-            });
+        btnBayar.addEventListener('click', async () => {
+            const nama = inputNama.value; const bayar = parseFloat(inputBayar.value) || 0;
+            const total = cart.reduce((sum, i) => sum + (i.harga * i.jumlah), 0);
+            if(cart.length === 0) return alert('Keranjang Kosong');
+            if(!nama.trim()) { alert('Isi Nama Pelanggan'); return inputNama.focus(); }
+            if(bayar < total) { alert('Pembayaran Kurang'); return inputBayar.focus(); }
+            if(!confirm('Proses Transaksi?')) return;
+            try {
+                btnBayar.disabled = true; btnBayar.innerText = 'Loading...';
+                const method = document.querySelector('input[name="metode"]:checked').value;
+                const res = await fetch(routeStore, {
+                    method: 'POST', headers: {'Content-Type':'application/json', 'X-CSRF-TOKEN':csrfToken, 'Accept':'application/json'},
+                    body: JSON.stringify({ nama_pembeli: nama, metode_pembayaran: method, total_harga: total, jumlah_bayar: bayar, items: cart.map(i => ({produk_id: i.id, jumlah: i.jumlah, harga: i.harga})) })
+                });
+                const json = await res.json();
+                if(res.ok) window.location.href = `/cetak-struk/${json.kode_transaksi}`;
+                else { alert(json.message || 'Gagal'); btnBayar.disabled = false; btnBayar.innerText = 'BAYAR'; }
+            } catch(e) { alert('Error Sistem'); btnBayar.disabled = false; btnBayar.innerText = 'BAYAR'; }
         });
 
-        // Scroll horizontal pembayaran 
-        const pembayaranContainer = document.querySelector('.pembayaran-container');
-        pembayaranContainer.addEventListener('wheel', (evt) => {
-            evt.preventDefault();
-            pembayaranContainer.scrollLeft += evt.deltaY;
-        });
-
-        // Tombol proses
-        document.getElementById('btnProses').addEventListener('click', () => {
-            alert('Memproses pembayaran dengan metode: ' + metodeSelected);
-        });
-    </script>
-</body>
-
-</html>
+        document.getElementById('btn-reset').addEventListener('click', () => { if(confirm('Reset Semua?')) location.reload(); });
+    });
+</script>
+@endpush

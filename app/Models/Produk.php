@@ -23,6 +23,8 @@ class Produk extends Model
         'nama_produk',  // dari $table->string('nama_produk')
         'harga_produk', // dari $table->decimal('harga_produk', 10, 2)
         'stok_produk',  // dari $table->integer('stok_produk')
+        'ukuran_baju',  // dari $table->string('ukuran_baju')->nullable()
+        'path_gambar',  // dari $table->string('path_gambar')->nullable
     ];
 
     /**
