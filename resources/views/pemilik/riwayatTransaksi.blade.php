@@ -1,63 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Riwayat</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body, html {
-      height: 100%;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #fff;
-    }
+@extends('layouts.app')
 
-    /* Sidebar kiri */
-    .sidebar {
-      background-color: #ff9cc7;
-      height: 100vh;
-      text-align: center;
-      width: 230px;
-      position: fixed;
-      top: 0;
-      left: 0;
-    }
-
-    .sidebar .navbar .navbar-brand {
-      padding: 60px 20px;
-      font-weight: bold;
-      display: block;
-      color: white;
-    }
-
-    .sidebar .nav-link {
-      color: white;
-      font-weight: bold;
-      margin-bottom: 10px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .sidebar .nav-link.active,
-    .sidebar .nav-link:hover {
-      background-color: #ff69b4;
-      border-radius: 15px;
-      width: 100%;
-    }
-
+@push('styles')
+<style>
+    /* CSS Khusus untuk Halaman Riwayat Transaksi */
     
-    .main-content {
-      margin-left: 230px;
-      padding: 20px;
-    }
-
-    /* transaksi */
+    /* Card Styling */
     .transaction-card {
       position: relative;
       background-color: transparent;
-      border: 2px;
       border-radius: 12px;
       overflow: hidden;
       transition: 0.3s;
@@ -82,90 +32,114 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      width: 50px;
+      height: 50px;
     }
 
     .text-pink {
       color: #ff69b4;
     }
 
-    /* Hover state */
+    /* Hover effects */
     .transaction-card:hover .card-body {
       background-color: #ffb6c1;
       color: white;
       transform: scale(1.02);
     }
 
-    /* Sembunyikan isi saat hover */
-    .transaction-card:hover .card-body > * {
+    /* Sembunyikan konten teks saat hover */
+    .transaction-card:hover .card-body .content-wrapper {
       opacity: 0;
     }
 
-    /* Ikon hapus muncul saat hover */
+    /* Tampilkan tombol delete saat hover */
     .transaction-card .delete-overlay {
       position: absolute;
       inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-size: 28px;
       opacity: 0;
       transition: opacity 0.3s ease;
+      z-index: 10;
     }
 
     .transaction-card:hover .delete-overlay {
       opacity: 1;
     }
-  </style>
-</head>
 
-<body>
-  <!-- Sidebar Kiri -->
-  <div class="sidebar">
-    <nav class="navbar mb-3">
-      <a class="navbar-brand" href="#">Heny Daster</a>
-    </nav>
-    <ul class="nav flex-column" id="menu">
-      <li class="nav-item">
-        <a class="nav-link active" href="#">Katalog</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Stok Barang</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Riwayat Transaksi</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Laporan Keuangan</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Data Akun</a>
-      </li>
-    </ul>
-  </div>
+    /* Tombol Delete Reset */
+    .btn-delete {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 20px;
+    }
+    
+    /* Pagination Custom */
+    .pagination .page-item .page-link {
+        color: #ff69b4;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #ff69b4;
+        border-color: #ff69b4;
+        color: white;
+    }
+</style>
+@endpush
 
-  <!-- Konten utama -->
-  <div class="main-content">
+@section('content')
+<div class="container-fluid">
+    <h3 class="mb-4 text-pink fw-bold">Riwayat Transaksi</h3>
+
+    @if(session('success'))
+      <div class="alert alert-success">
+          {{ session('success') }}
+      </div>
+    @endif
+
+    @forelse($transaksis as $transaksi)
     <div class="card transaction-card mb-3">
       <div class="card-body d-flex justify-content-between align-items-center">
-        <!-- Kiri -->
-        <div class="d-flex align-items-center">
-          <div class="icon-box me-3">$</div>
-          <div>
-            <strong>Transaksi Tunai Masuk</strong><br>
-            <small>21 Maret 2021 &nbsp;&nbsp; 09:10</small>
-          </div>
-        </div>
-
-        <!-- Kanan -->
-        <div class="text-end text-pink fw-bold">
-          + Rp. 200.000
+        <!-- Wrapper konten agar bisa di-hide saat hover -->
+        <div class="d-flex justify-content-between align-items-center w-100 content-wrapper">
+            <!-- Kiri -->
+            <div class="d-flex align-items-center">
+              <div class="icon-box me-3">$</div>
+              <div>
+                <strong>{{ $transaksi->nama_pembeli ?? $transaksi->kode_transaksi }}</strong><br>
+                <small>{{ \Carbon\Carbon::parse($transaksi->waktu_transaksi)->translatedFormat('d F Y H:i') }}</small>
+              </div>
+            </div>
+    
+            <!-- Kanan -->
+            <div class="text-end text-pink fw-bold">
+              + Rp. {{ number_format($transaksi->total_harga, 0, ',', '.') }}
+            </div>
         </div>
       </div>
 
-      <!-- Hover Icon -->
-      <div class="delete-overlay">X</div>
+      <!-- Hover Icon (Delete Form) -->
+      <div class="delete-overlay">
+        <form action="{{ route('pemilik.riwayat-transaksi.destroy', $transaksi->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus riwayat transaksi ini?');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn-delete" title="Hapus Transaksi">X</button>
+        </form>
+      </div>
     </div>
-  </div>
-</body>
-</html>
+    @empty
+      <div class="alert alert-info text-center">
+          Belum ada riwayat transaksi.
+      </div>
+    @endforelse
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
+        {{ $transaksis->links('pagination::bootstrap-5') }}
+    </div>
+</div>
+@endsection

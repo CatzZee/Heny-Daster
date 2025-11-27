@@ -9,6 +9,7 @@ use App\Http\Controllers\Pemilik\DashboardController as PemilikDashboard;
 use App\Http\Controllers\ProdukController as ProdukController;
 use App\Http\Controllers\StrukController;
 use App\Http\Controllers\Pemilik\AkunController;
+use App\Http\Controllers\RiwayatTransaksiController;
 
 Route::get('/login', [LoginController::class, 'create'])->name('login');
 Route::post('/login', [LoginController::class, 'store']);
@@ -36,6 +37,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('produk', ProdukController::class);
         Route::post('/transaksi', [KatalogController::class, 'store'])->name('transaksi.store');
         Route::resource('akun', AkunController::class);
-        
+        Route::get('/riwayat-transaksi', [RiwayatTransaksiController::class, 'index'])->name('riwayat-transaksi.index');
+        Route::delete('/riwayat-transaksi/{id}', [RiwayatTransaksiController::class, 'destroy'])->name('riwayat-transaksi.destroy');
     });
 });
