@@ -272,7 +272,7 @@
         <h1>👤 Data Akun</h1>
     </div>
     <div class="btn-container">
-        <button class="btn-tambah" onclick="openCreateModal()">+ Tambah Barang</button>
+        <button class="btn-tambah" onclick="openCreateModal()">+ Tambah Akun</button>
     </div>
     {{-- Search --}}
     <div class="search-box">
