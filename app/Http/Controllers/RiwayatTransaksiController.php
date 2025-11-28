@@ -23,13 +23,29 @@ class RiwayatTransaksiController extends Controller
     /**
      * Menampilkan daftar riwayat transaksi.
      */
-    public function index()
+    public function index(Request $request)
     {
         $routePrefix = $this->getRolePrefix();
         $viewpath = $routePrefix . '.riwayatTransaksi';
-        $transaksis = Transaksi::latest('waktu_transaksi')->paginate(10);
 
-        return view( $viewpath , compact('transaksis', 'routePrefix'));
+        // Mulai query
+        $query = Transaksi::query();
+
+        // 1. Eager Loading Relasi untuk Modal
+        // Kita load 'details' dan 'details.produk' untuk mengambil nama produk
+        // Kita load 'pengguna' untuk mengambil nama kasir
+        $query->with(['details.produk', 'pengguna']);
+
+        // 2. Logika Filter Tanggal
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereDate('waktu_transaksi', '>=', $request->start_date)
+                ->whereDate('waktu_transaksi', '<=', $request->end_date);
+        }
+
+        // Ambil data terbaru dan paginasi
+        $transaksis = $query->latest('waktu_transaksi')->paginate(10);
+
+        return view($viewpath, compact('transaksis', 'routePrefix'));
     }
 
     /**
