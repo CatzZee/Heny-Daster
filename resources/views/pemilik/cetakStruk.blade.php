@@ -275,7 +275,7 @@
 </head>
 {{-- (BARU) Tambahkan onload="window.print()" untuk auto-print --}}
 
-<body onload="window.print()">
+<body>
 
     <div class="sidebar">
         {{-- Gunakan Auth::user()->role untuk route dinamis --}}

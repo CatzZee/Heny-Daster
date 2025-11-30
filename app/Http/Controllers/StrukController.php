@@ -19,10 +19,8 @@ class StrukController extends Controller
         $transaksi = Transaksi::where('kode_transaksi', $kode_transaksi)
                             ->with(['details.produk', 'pengguna'])
                             ->firstOrFail(); // Error jika tidak ketemu
-
         // 2. Dapatkan role user yang sedang login
         $role = Auth::user()->role; // 'kasir' atau 'pemilik'
-
         // 3. Tampilkan view cetakStruk sesuai role
         // Kita akan kirim data $transaksi ke view
         return view($role . '.cetakStruk', compact('transaksi'));
