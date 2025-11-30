@@ -186,7 +186,7 @@
                      data-stok="{{ $produk->stok_produk }}">
                      
                      <div class="img-wrapper">
-                         <img src="{{ $produk->path_gambar ? Storage::url($produk->path_gambar) : '/storage/produks/noImage.png' }}" loading="lazy">
+                         <img src="{{ $produk->path_gambar ? asset($produk->path_gambar): asset('uploads\produks\noImage.png') }}" loading="lazy">
                          <span class="badge-stok">Stok: {{ $produk->stok_produk }}</span>
                      </div>
                      <div class="info-wrapper">

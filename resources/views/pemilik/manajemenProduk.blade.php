@@ -5,9 +5,7 @@
 @push('styles')
     <style>
         /* --- CSS BAWAAN (DIPERTAHANKAN SESUAI REQUEST) --- */
-        /* Kita hapus body, html, sidebar, dan main-content margin
-           karena sudah diatur oleh Master Layout (layouts.app) */
-
+        
         /* Header & Judul */
         .header {
             display: flex;
@@ -20,10 +18,9 @@
             color: #ff69b4;
             font-size: 28px;
             margin: 0;
-            /* Reset margin bawaan browser */
         }
 
-        /* Tombol Tambah (Style Asli) */
+        /* Tombol Tambah */
         .btn-tambah {
             padding: 12px 30px;
             background: #ff9cc7;
@@ -45,7 +42,7 @@
             right: 50px;
         }
 
-        .btn-tambah:hover {3
+        .btn-tambah:hover {
             background: #ff69b4;
             transform: translateY(-2px);
         }
@@ -155,10 +152,9 @@
             background: #ff4444;
         }
 
-        /* Modal Style (Asli) */
+        /* Modal Style */
         .modal {
             display: none;
-            /* Hidden by default */
             position: fixed;
             top: 0;
             left: 0;
@@ -308,7 +304,8 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>
-                            <img src="{{ $produk->path_gambar ? Storage::url($produk->path_gambar) : '/storage/produks/noImage.png' }}"
+                            {{-- MODIFIKASI: Menggunakan asset() langsung karena path di DB sudah 'uploads/...' --}}
+                            <img src="{{ $produk->path_gambar ? asset($produk->path_gambar) : asset('uploads\produks\noImage.png') }}"
                                 alt="{{ $produk->nama_produk }}">
                         </td>
                         <td>{{ $produk->nama_produk }}</td>
@@ -321,10 +318,6 @@
                         </td>
                         <td>Rp {{ number_format($produk->harga_produk, 0, ',', '.') }}</td>
                         <td>
-                            {{-- 
-                                PERBAIKAN PENTING: 
-                                Menggunakan @json($produk) agar data objek aman dibaca JS 
-                            --}}
                             <button class="btn-aksi btn-edit"
                                 onclick='openEditModal(@json($produk))'>Edit</button>
 
@@ -411,18 +404,14 @@
         const storeUrl = "{{ route($routePrefix . '.produk.store') }}";
         const updateUrlBase = "{{ route($routePrefix . '.produk.index') }}";
 
-        // --- FUNGSI GLOBAL WINDOW (Wajib agar onclick HTML terbaca) ---
-
+        // --- FUNGSI GLOBAL WINDOW ---
         window.openCreateModal = function() {
             formBarang.reset();
             modalTitle.innerText = 'Tambah Barang Baru';
             formBarang.action = storeUrl;
             formMethod.value = 'POST';
-
-            // Reset tombol
             btnSimpan.disabled = false;
             btnSimpan.innerText = 'Simpan';
-
             modal.style.display = 'block';
         }
 
@@ -431,18 +420,13 @@
             modalTitle.innerText = 'Edit Barang';
             formBarang.action = updateUrlBase + '/' + produk.id;
             formMethod.value = 'PUT';
-
-            // Isi data ke form
             document.getElementById('nama_produk').value = produk.nama_produk;
             document.getElementById('id_kategori').value = produk.id_kategori;
             document.getElementById('ukuran_baju').value = produk.ukuran_baju;
             document.getElementById('stok_produk').value = produk.stok_produk;
             document.getElementById('harga_produk').value = produk.harga_produk;
-
-            // Reset tombol
             btnSimpan.disabled = false;
             btnSimpan.innerText = 'Simpan';
-
             modal.style.display = 'block';
         }
 
@@ -455,7 +439,6 @@
             let input = document.getElementById('searchInput');
             let filter = input.value.toLowerCase();
             let tr = document.querySelectorAll('#tableBody tr');
-
             tr.forEach(row => {
                 let tdNama = row.getElementsByTagName('td')[2];
                 if (tdNama) {
@@ -469,20 +452,17 @@
             });
         }
 
-        // Event Listener Form Submit
         formBarang.addEventListener('submit', function() {
             btnSimpan.disabled = true;
             btnSimpan.innerText = 'Menyimpan...';
         });
 
-        // Klik luar modal untuk menutup
         window.onclick = function(event) {
             if (event.target == modal) {
                 closeModal();
             }
         }
 
-        // Auto Open Modal jika Error Validasi
         @if ($errors->any())
             openCreateModal();
         @endif
