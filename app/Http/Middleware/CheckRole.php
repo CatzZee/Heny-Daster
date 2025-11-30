@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate_Http_Request;
-use Illuminate\Support\Facades\Auth; // # ALUR 1: Import 'Auth' untuk cek user
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Request;
 
