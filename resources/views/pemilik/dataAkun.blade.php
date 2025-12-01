@@ -318,7 +318,7 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>
-                            <img src="{{ $user->path_gambar ? Storage::url($user->path_gambar) : '/storage/produks/noImage.png  ' }}"
+                            <img src="{{ $user->path_gambar ? asset($user->path_gambar) : asset('uploads\produks\noImage.png') }}"
                                 class="avatar" alt="Avatar">
                         </td>
                         <td>{{ $user->nama }}</td>
