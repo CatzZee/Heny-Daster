@@ -5,7 +5,7 @@
 
     <nav class="navbar">
         <div class="brand-wrapper">
-            <img src="{{ Storage::url('logo/logoToko.jpg') }}" 
+            <img src="{{ asset('uploads/logo/logoToko.jpg') }}" 
                  alt="Logo Heny Daster" 
                  class="logo-img">
             
