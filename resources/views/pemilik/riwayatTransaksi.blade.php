@@ -100,6 +100,16 @@
         background-color: white;
         border-color: #ced4da;
     }
+    
+    .btn-outline-success {
+        border-color: #28a745;
+        color: #28a745;
+    }
+    
+    .btn-outline-success:hover {
+        background-color: #28a745;
+        color: white;
+    }
 </style>
 
 <div class="container-fluid">
@@ -283,7 +293,14 @@
                                 </table>
                                 
                                 <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                                    <strong class="h5"><i class="bi bi-cash-coin me-1"></i>Total Pembayaran:</strong>
+                                    <div>
+                                        <!-- Tombol Cetak Struk -->
+                                        <a href="{{ route('transaksi.cetakStruk', $transaksi->kode_transaksi) }}" 
+                                           target="_blank"
+                                           class="btn btn-sm btn-outline-success">
+                                            <i class="bi bi-printer me-1"></i>Cetak Ulang Struk
+                                        </a>
+                                    </div>
                                     <strong class="h4" style="color: #ff4da6;">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</strong>
                                 </div>
                             </div>
