@@ -294,7 +294,7 @@
                                 
                                 <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
                                     <div>
-                                        <!-- Tombol Cetak Struk -->
+                                       
                                         <a href="{{ route('transaksi.cetakStruk', $transaksi->kode_transaksi) }}" 
                                            target="_blank"
                                            class="btn btn-sm btn-outline-success">
