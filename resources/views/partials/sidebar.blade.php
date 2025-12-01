@@ -35,6 +35,11 @@
                 <i class="bi bi-person-circle"></i><span>Data Akun</span>
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link {{ Request::routeIs('pemilik.laporan') ? 'active' : '' }}" href="{{ route('pemilik.laporan') }}">
+                <i class="bi bi-bar-chart-line"></i><span>Laporan</span>
+            </a>
+        </li>
     </ul>
 
     <div class="sidebar-footer">
