@@ -274,8 +274,9 @@
     /* Form elements - Mencegah overflow */
     .form-select {
         max-width: 100%;
+        min-width: 130px;
         overflow: hidden;
-    }
+    }s
 
     /* Responsive Adjustments - Lebih ketat */
     @media (max-width: 768px) {
