@@ -124,15 +124,16 @@
         }
 
         .bg-admin {
-            background: #4A90E2;
+            background: #f9449ebb;
         }
 
         .bg-owner {
-            background: #ff69b4;
+            background: #ec07bb;
+
         }
 
         .bg-cashier {
-            background: #f0ad4e;
+            background: #bc8db299;
         }
 
         /* Tombol Aksi */

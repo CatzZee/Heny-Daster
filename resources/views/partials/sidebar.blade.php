@@ -5,7 +5,7 @@
 
     <nav class="navbar">
         <div class="brand-wrapper">
-            <img src="{{ Storage::url('logo/logoToko.jpg') }}" 
+            <img src="{{ asset('uploads/logo/logoToko.jpg') }}" 
                  alt="Logo Heny Daster" 
                  class="logo-img">
             
@@ -33,6 +33,11 @@
         <li class="nav-item">
             <a class="nav-link {{ Request::routeIs('*.akun.*') ? 'active' : '' }}" href="{{ route($routePrefix . '.akun.index') }}">
                 <i class="bi bi-person-circle"></i><span>Data Akun</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{ Request::routeIs('pemilik.laporan') ? 'active' : '' }}" href="{{ route('pemilik.laporan') }}">
+                <i class="bi bi-bar-chart-line"></i><span>Laporan</span>
             </a>
         </li>
     </ul>
