@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Struk Transaksi {{ $transaksi->kode_transaksi }}</title> {{-- (DINAMIS) --}}
+    <title>Struk Transaksi {{ $transaksi->kode_transaksi }}</title> 
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
@@ -20,7 +20,6 @@
             height: 100%;
             margin: 0;
             background: #f4f7f6;
-            /* (MODIFIKASI) Background sedikit abu */
             font-family: "Poppins", sans-serif;
             color: var(--text-color);
             display: flex;
@@ -30,9 +29,8 @@
             box-sizing: border-box;
         }
 
-        /* Sidebar */
         .sidebar {
-            background-color: #ffb6c1;
+            background-color: #ff9cc7;
             width: 60px;
             height: 100vh;
             position: fixed;
@@ -67,7 +65,6 @@
             fill: white;
         }
 
-        /* Container */
         .container {
             display: flex;
             align-items: flex-start;
@@ -78,17 +75,14 @@
             width: 100%;
         }
 
-        /* Struk */
         .receipt {
             width: 320px;
-            /* (MODIFIKASI) Sedikit lebih lebar */
             border: 1px solid #000;
             padding: 20px 25px;
             box-sizing: border-box;
             background: #fff;
             text-align: left;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            /* (BARU) */
         }
 
         .receipt h2 {
@@ -137,7 +131,6 @@
         }
 
         .total-section .row.grand-total {
-            /* (BARU) */
             font-weight: 700;
             font-size: 14px;
             margin-top: 5px;
@@ -154,7 +147,6 @@
             display: block;
         }
 
-        /* Tombol Aksi */
         .actions {
             display: flex;
             flex-direction: column;
@@ -185,7 +177,6 @@
             cursor: pointer;
         }
 
-        /* Responsif */
         @media (max-width: 768px) {
             body {
                 padding: 20px;
@@ -200,27 +191,19 @@
 
             .sidebar {
                 display: none;
-                /* Sembunyikan sidebar di HP */
             }
         }
-
-        /* (BARU) CSS Khusus untuk Print */
-        /* ... (CSS kamu yang lain) ... */
-
-        /* (BARU) CSS Khusus untuk Print */
         @media print {
             body {
                 padding: 0;
                 background: #fff;
             }
 
-            /* 1. Sembunyikan semua yang tidak perlu */
             .sidebar,
             .actions {
                 display: none !important;
             }
 
-            /* 2. Atur ulang layout container */
             .container {
                 display: block;
                 width: 100%;
@@ -228,21 +211,16 @@
                 padding: 0;
             }
 
-            /* 3. Atur struk agar pas di kertas thermal (ini intinya) */
             .receipt {
                 width: 280px;
-                /* Lebar untuk kertas thermal 58mm */
                 border: none;
                 box-shadow: none;
                 font-family: 'Courier New', Courier, monospace;
-                /* Font khas struk */
                 font-size: 10px;
-                /* Font kecil */
                 padding: 0;
                 margin: 0;
             }
 
-            /* 4. Atur ulang font dan margin internal */
             .receipt h2 {
                 font-size: 16px;
             }
@@ -273,12 +251,10 @@
     </style>
     </style>
 </head>
-{{-- (BARU) Tambahkan onload="window.print()" untuk auto-print --}}
 
 <body>
 
     <div class="sidebar">
-        {{-- Gunakan Auth::user()->role untuk route dinamis --}}
         <a href="{{ route(Auth::user()->role . '.dashboard') }}">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 
@@ -297,7 +273,6 @@
 
             <div class="dashed"></div>
 
-            {{-- (DINAMIS) Menggunakan data $transaksi --}}
             <div class="row">
                 <span>Pelanggan : {{ $transaksi->nama_pembeli }}</span>
                 <span>{{ $transaksi->waktu_transaksi->format('d-m-Y') }}</span>
@@ -313,7 +288,6 @@
 
             <div class="dashed"></div>
 
-            {{-- (DINAMIS) Loop untuk items --}}
             @foreach ($transaksi->details as $item)
                 <div class="item">
                     <div class="row">
@@ -333,7 +307,6 @@
 
             <div class="dashed"></div>
 
-            {{-- (DINAMIS) Total section --}}
             <div class="total-section">
                 <div class="row grand-total">
                     <span>Total</span>
@@ -356,7 +329,6 @@
         </div>
 
         <div class="actions">
-            {{-- (DIHAPUS) Tombol "Batalkan Transaksi" dihapus karena tidak relevan --}}
 
             <a class="btn" href="#" onclick="window.print(); return false;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -364,7 +336,7 @@
                     <path d="M6 9V2h12v7h4v9h-4v5H6v-5H2V9h4zm2 0h8V4H8v5zm8 11v-3H8v3h8zm4-9H4v5h2v-2h12v2h2v-5z" />
 
                 </svg>
-                <span>Cetak Ulang</span> {{-- (MODIFIKASI) Teks tombol --}}
+                <span>Cetak Struk</span>
             </a>
         </div>
 
